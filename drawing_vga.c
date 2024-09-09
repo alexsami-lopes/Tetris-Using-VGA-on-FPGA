@@ -137,11 +137,11 @@ void gen_barrel () {
 void gen_block () {
     unsigned int block_color[] = {video_BLUE};
     unsigned int border_color = video_GREY;  // Cor da borda
-    int block_width = 17;  // Largura do bloco
-    int block_height = 17; // Altura do bloco
-    int border_thickness = 1; // Espessura da borda
+    int block_width = 16;  // Largura do bloco
+    int block_height = 16; // Altura do bloco
+    int border_thickness = 2; // Espessura da borda
     int center_x = screen_x / 2;  // Centraliza na largura da tela
-    int base_y = screen_y - 22;   // Define a base do barril na parte inferior da tela
+    int base_y = screen_y - 23;   // Define a base do barril na parte inferior da tela
     
     // Coordenadas da borda (um pouco maior que o bloco)
     int x1 = center_x - (block_width / 2) - border_thickness;
