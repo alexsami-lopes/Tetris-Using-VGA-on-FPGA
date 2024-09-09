@@ -9,8 +9,8 @@
 int screen_x, screen_y;
 int char_x, char_y;
 void gen_line (int *, int *, int *, int *, unsigned *);
-void gen_barrel (int, int *, int *, int *, int *, unsigned *);
-void gen_block (int *, int *, int *, int *, unsigned *);
+void gen_barrel ();
+void gen_block ();
 //void gen_barrel_bottom (int *, int *, int *, int *, unsigned *);
 //void gen_barrel_left (int *, int *, int *, int *, unsigned *);
 //void gen_barrel_right (int *, int *, int *, int *, unsigned *);
@@ -57,17 +57,13 @@ video_clear ( );
 // clear the VGA Back buffer, where we will draw lines
 //video_line (x1, y1, x2, y2, color);
 //gen_barrel_bottom (&x1, &y1, &x2, &y2, &color);
-gen_barrel(0, &x1, &y1, &x2, &y2, &color);
-video_box (x1, y1, x2, y2, color);
-gen_barrel(1, &x1, &y1, &x2, &y2, &color);
-video_box (x1, y1, x2, y2, color);
-gen_barrel(2, &x1, &y1, &x2, &y2, &color);
-video_box (x1, y1, x2, y2, color);
+gen_barrel();
+
 //video_show ( );
 
 
-gen_block(&x1, &y1, &x2, &y2, &color);
-video_box (x1, y1, x2, y2, color);
+gen_block();
+//video_box (x1, y1, x2, y2, color);
 video_show ( );
 // swap Front/Back to display the line
 while (!stop) {
@@ -104,66 +100,68 @@ video_PINK, video_ORANGE};
 *color = video_color[(rand()%10)]; // random out of 10 video colors
 }
 
-void gen_barrel (int part, int *x1, int *y1, int *x2, int *y2, unsigned *color) {
+void gen_barrel () {
     unsigned int barrel_color[] = {video_WHITE};
     int barrel_width = 200;  // Ajuste a largura do barril
     int barrel_height = 370; // Ajuste a altura do barril
     int center_x = screen_x / 2;  // Centraliza na largura da tela
     int base_y = screen_y - 10;   // Define a base do barril na parte inferior da tela
     
-    *color = barrel_color[0]; // Define a cor do barril como branco
+    unsigned color = barrel_color[0]; // Define a cor do barril como branco
     
-    if (part == 0) {
         // Parte inferior do barril
-        *x1 = center_x - (barrel_width / 2);
-        *y1 = base_y - 10;
-        *x2 = center_x + (barrel_width / 2);
-        *y2 = base_y;
-    }
-    else if (part == 1) {
+    int x1 = center_x - (barrel_width / 2);
+    int y1 = base_y - 10;
+    int x2 = center_x + (barrel_width / 2);
+    int y2 = base_y;
+    
+    video_box(x1, y1, x2, y2, color);
+
         // Parte esquerda do barril
-        *x1 = center_x - (barrel_width / 2);
-        *y1 = base_y - (barrel_height / 2);
-        *x2 = center_x - (barrel_width / 2) + 10;
-        *y2 = base_y - 10;
-    }
-    else if (part == 2) {
+    x1 = center_x - (barrel_width / 2);
+    y1 = base_y - (barrel_height / 2);
+    x2 = center_x - (barrel_width / 2) + 10;
+    y2 = base_y - 10;
+    
+    video_box(x1, y1, x2, y2, color);
+   
         // Parte direita do barril
-        *x1 = center_x + (barrel_width / 2) - 10;
-        *y1 = base_y - (barrel_height / 2);
-        *x2 = center_x + (barrel_width / 2);
-        *y2 = base_y - 10;
-    }
+    x1 = center_x + (barrel_width / 2) - 10;
+    y1 = base_y - (barrel_height / 2);
+    x2 = center_x + (barrel_width / 2);
+    y2 = base_y - 10;
+    
+    video_box(x1, y1, x2, y2, color);
 }
 
-void gen_block (int *x1, int *y1, int *x2, int *y2, unsigned *color) {
+void gen_block () {
     unsigned int block_color[] = {video_BLUE};
     unsigned int border_color = video_GREY;  // Cor da borda
     int block_width = 17;  // Largura do bloco
     int block_height = 17; // Altura do bloco
     int border_thickness = 1; // Espessura da borda
     int center_x = screen_x / 2;  // Centraliza na largura da tela
-    int base_y = screen_y - 20;   // Define a base do barril na parte inferior da tela
+    int base_y = screen_y - 22;   // Define a base do barril na parte inferior da tela
     
     // Coordenadas da borda (um pouco maior que o bloco)
-    *x1 = center_x - (block_width / 2) - border_thickness;
-    *y1 = base_y - block_height - border_thickness;
-    *x2 = center_x + (block_width / 2) + border_thickness;
-    *y2 = base_y + border_thickness;
+    int x1 = center_x - (block_width / 2) - border_thickness;
+    int y1 = base_y - block_height - border_thickness;
+    int x2 = center_x + (block_width / 2) + border_thickness;
+    int y2 = base_y + border_thickness;
 
     // Desenhar a borda cinza
-    *color = border_color;
-    video_box(*x1, *y1, *x2, *y2, *color);
+    unsigned color = border_color;
+    video_box(x1, y1, x2, y2, color);
     
     // Coordenadas do bloco azul
-    *x1 = center_x - (block_width / 2);
-    *y1 = base_y - block_height;
-    *x2 = center_x + (block_width / 2);
-    *y2 = base_y;
+    x1 = center_x - (block_width / 2);
+    y1 = base_y - block_height;
+    x2 = center_x + (block_width / 2);
+    y2 = base_y;
 
     // Desenhar o bloco azul
-    *color = block_color[0];
-    video_box(*x1, *y1, *x2, *y2, *color);
+    color = block_color[0];
+    video_box(x1, y1, x2, y2, color);
 }
 
 
