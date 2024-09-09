@@ -102,10 +102,10 @@ video_PINK, video_ORANGE};
 
 void gen_barrel () {
     unsigned int barrel_color[] = {video_WHITE};
-    int barrel_width = 200;  // Ajuste a largura do barril
-    int barrel_height = 370; // Ajuste a altura do barril
+    int barrel_width = 180;  // Ajuste a largura do barril
+    int barrel_height = 330; // Ajuste a altura do barril
     int center_x = screen_x / 2;  // Centraliza na largura da tela
-    int base_y = screen_y - 10;   // Define a base do barril na parte inferior da tela
+    int base_y = screen_y - 5;   // Define a base do barril na parte inferior da tela
     
     unsigned color = barrel_color[0]; // Define a cor do barril como branco
     
@@ -141,27 +141,28 @@ void gen_block () {
     int block_height = 16; // Altura do bloco
     int border_thickness = 2; // Espessura da borda
     int center_x = screen_x / 2;  // Centraliza na largura da tela
-    int base_y = screen_y - 23;   // Define a base do barril na parte inferior da tela
+    int base_y = screen_y - 176 + 5;   // Define a base do bloco na parte inferior da tela (screen_y - 23 é o fundo do barril) e (screen_y - 198) é o início do barril
     
     // Coordenadas da borda (um pouco maior que o bloco)
-    int x1 = center_x - (block_width / 2) - border_thickness;
-    int y1 = base_y - block_height - border_thickness;
-    int x2 = center_x + (block_width / 2) + border_thickness;
-    int y2 = base_y + border_thickness;
+    int x1 = center_x - (block_width / 2) - 71; // início do barril
+    int y1 = base_y - block_height;
+    int x2 = center_x + (block_width / 2) - 71; // início do barril
+    int y2 = base_y;
 
     // Desenhar a borda cinza
     unsigned color = border_color;
     video_box(x1, y1, x2, y2, color);
     
     // Coordenadas do bloco azul
-    x1 = center_x - (block_width / 2);
-    y1 = base_y - block_height;
-    x2 = center_x + (block_width / 2);
-    y2 = base_y;
+    x1 = center_x - (block_width / 2) + border_thickness - 71; // início do barril
+    y1 = base_y - block_height + border_thickness;
+    x2 = center_x + (block_width / 2) - border_thickness - 71; // início do barril
+    y2 = base_y - border_thickness;
 
     // Desenhar o bloco azul
     color = block_color[0];
     video_box(x1, y1, x2, y2, color);
+
 }
 
 
