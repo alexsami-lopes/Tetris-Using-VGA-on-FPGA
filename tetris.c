@@ -96,9 +96,9 @@ void gen_barrel(Block_space matrix[24][10])
 
     // Parte inferior do barril
     int x1 = matrix[23][0].top_left_point_x - block_side;
-    int y1 = matrix[23][0].top_left_point_y + block_side;
+    int y1 = matrix[23][0].top_left_point_y - block_side;
     int x2 = matrix[23][10].top_left_point_x + (block_side * 2);
-    int y2 = matrix[23][10].top_left_point_y + (block_side * 2);
+    int y2 = matrix[23][10].top_left_point_y - (block_side * 2);
     video_box(x1, y1, x2, y2, color); // Desenha a parte inferior do barril
 
     // Parte esquerda do barril
@@ -178,6 +178,7 @@ void print_matrix(Block_space matrix[24][10])
             int y1 = matrix[i][j].top_left_point_y;
             int x2 = matrix[i][j].top_left_point_x + block_side;
             int y2 = matrix[i][j].top_left_point_y + block_side;
+            color = video_color[(rand()%9)];
             gen_block(x1, y1, x2, y2, color); // Desenha o bloco
         }
     }
@@ -196,3 +197,5 @@ void gen_line(int *x1, int *y1, int *x2, int *y2, unsigned *color)
     *y2 = rand() % screen_y;
     *color = line_color[color_idx]; // Define a cor da linha
 }
+
+
