@@ -53,7 +53,7 @@ int main()
 
 
     video_read(&screen_x, &screen_y, &char_x, &char_y); // Lê as dimensões da tela e do texto
-    block_side = (screen_y - (screen_y * 0.8)) / 24;    // Calcula o tamanho lateral de cada bloco com base na tela
+    block_side = (screen_y * 0.8) / 24;    // Calcula o tamanho lateral de cada bloco com base na tela
 
     video_erase();   // Limpa o conteúdo atual da tela
     video_show();    // Mostra a tela limpa
