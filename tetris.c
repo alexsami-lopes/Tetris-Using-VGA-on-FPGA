@@ -11,11 +11,14 @@ int screen_x, screen_y;   // Resolução da tela VGA
 int block_side;           // Tamanho lateral de cada bloco
 int char_x, char_y;       // Coordenadas dos caracteres no display de texto
 
+//typedef enum { false, true } bool;  // Definindo um tipo booleano
 // Estrutura para armazenar as coordenadas de canto superior esquerdo de cada bloco
 typedef struct
 {
     int top_left_point_x;  // Coordenada x do canto superior esquerdo do bloco
     int top_left_point_y;  // Coordenada y do canto superior esquerdo do bloco
+    int filled = 0;        // Se o espaço de bloco está preenchido é 1, se não é 0 
+
 } Block_space;
 
 // Protótipos das funções
@@ -24,6 +27,7 @@ void print_matrix(Block_space matrix[24][10]); // Imprime e desenha a matriz
 void gen_line(int *, int *, int *, int *, unsigned *); // Gera uma linha aleatória na tela
 void gen_barrel(Block_space matrix[24][10]);  // Gera o barril central
 void gen_block(int, int, int, int, unsigned); // Gera um bloco na tela
+void gen_piece(Block_space matrix[24][10]); // Gera uma peça na tela
 
 volatile sig_atomic_t stop; // Variável usada para sinalizar interrupção do programa
 
@@ -60,6 +64,7 @@ int main()
     video_clear();   // Limpa o buffer da tela (Back buffer)
     fill_matrix(matrix); // Preenche a matriz com blocos
     print_matrix(matrix); // Desenha os blocos da matriz na tela
+    gen_piece(matrix); // Gera uma peça na tela
 
     video_show(); // Mostra os gráficos gerados
 
@@ -200,6 +205,246 @@ void gen_line(int *x1, int *y1, int *x2, int *y2, unsigned *color)
     *y1 = rand() % screen_y;
     *y2 = rand() % screen_y;
     *color = line_color[color_idx]; // Define a cor da linha
+}
+
+void gen_piece(Block_space matrix[24][10])
+{
+
+
+    #define SIZE_M 4
+
+    // Define as matrizes para cada peça de Tetris e suas rotações
+    int I[4][4][4] = {
+        {  // Rotação 0°
+            {0, 0, 0, 0},
+            {1, 1, 1, 1},
+            {0, 0, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {  // Rotação 90°
+            {0, 1, 0, 0},
+            {0, 1, 0, 0},
+            {0, 1, 0, 0},
+            {0, 1, 0, 0}
+        },
+        {  // Rotação 180°
+            {0, 0, 0, 0},
+            {1, 1, 1, 1},
+            {0, 0, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {  // Rotação 270°
+            {0, 1, 0, 0},
+            {0, 1, 0, 0},
+            {0, 1, 0, 0},
+            {0, 1, 0, 0}
+        }
+    };
+
+    int J[4][4][4] = {
+        {  // Rotação 0°
+            {0, 0, 0, 0},
+            {1, 1, 1, 0},
+            {0, 0, 1, 0},
+            {0, 0, 0, 0}
+        },
+        {  // Rotação 90°
+            {0, 1, 0, 0},
+            {0, 1, 1, 1},
+            {0, 0, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {  // Rotação 180°
+            {0, 0, 0, 0},
+            {0, 1, 0, 0},
+            {1, 1, 1, 0},
+            {0, 0, 0, 0}
+        },
+        {  // Rotação 270°
+            {0, 0, 1, 0},
+            {1, 1, 1, 0},
+            {0, 0, 0, 0},
+            {0, 0, 0, 0}
+        }
+    };
+
+    int L[4][4][4] = {
+        {  // Rotação 0°
+            {0, 0, 0, 0},
+            {1, 1, 1, 0},
+            {1, 0, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {  // Rotação 90°
+            {0, 1, 0, 0},
+            {0, 1, 0, 0},
+            {0, 1, 1, 0},
+            {0, 0, 0, 0}
+        },
+        {  // Rotação 180°
+            {0, 0, 0, 0},
+            {0, 1, 1, 1},
+            {0, 0, 0, 1},
+            {0, 0, 0, 0}
+        },
+        {  // Rotação 270°
+            {1, 1, 0, 0},
+            {0, 1, 0, 0},
+            {0, 1, 0, 0},
+            {0, 0, 0, 0}
+        }
+    };
+
+    int O[4][4][4] = {
+        {  // Rotação 0°
+            {0, 0, 0, 0},
+            {0, 1, 1, 0},
+            {0, 1, 1, 0},
+            {0, 0, 0, 0}
+        },
+        {  // Rotação 90°
+            {0, 0, 0, 0},
+            {0, 1, 1, 0},
+            {0, 1, 1, 0},
+            {0, 0, 0, 0}
+        },
+        {  // Rotação 180°
+            {0, 0, 0, 0},
+            {0, 1, 1, 0},
+            {0, 1, 1, 0},
+            {0, 0, 0, 0}
+        },
+        {  // Rotação 270°
+            {0, 0, 0, 0},
+            {0, 1, 1, 0},
+            {0, 1, 1, 0},
+            {0, 0, 0, 0}
+        }
+    };
+
+    int S[4][4][4] = {
+        {  // Rotação 0°
+            {0, 0, 0, 0},
+            {0, 1, 1, 0},
+            {1, 1, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {  // Rotação 90°
+            {0, 1, 0, 0},
+            {0, 1, 1, 1},
+            {0, 0, 1, 0},
+            {0, 0, 0, 0}
+        },
+        {  // Rotação 180°
+            {0, 0, 0, 0},
+            {0, 1, 1, 0},
+            {1, 1, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {  // Rotação 270°
+            {0, 1, 0, 0},
+            {0, 1, 1, 1},
+            {0, 0, 1, 0},
+            {0, 0, 0, 0}
+        }
+    };
+
+    int T[4][4][4] = {
+        {  // Rotação 0°
+            {0, 0, 0, 0},
+            {1, 1, 1, 0},
+            {0, 1, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {  // Rotação 90°
+            {0, 1, 0, 0},
+            {1, 1, 1, 0},
+            {0, 0, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {  // Rotação 180°
+            {0, 0, 0, 0},
+            {0, 1, 0, 0},
+            {1, 1, 1, 0},
+            {0, 0, 0, 0}
+        },
+        {  // Rotação 270°
+            {0, 1, 0, 0},
+            {1, 1, 1, 0},
+            {0, 0, 0, 0},
+            {0, 0, 0, 0}
+        }
+    };
+
+    int Z[4][4][4] = {
+        {  // Rotação 0°
+            {0, 0, 0, 0},
+            {1, 1, 0, 0},
+            {0, 1, 1, 0},
+            {0, 0, 0, 0}
+        },
+        {  // Rotação 90°
+            {0, 0, 1, 1},
+            {0, 1, 1, 0},
+            {0, 0, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {  // Rotação 180°
+            {0, 0, 0, 0},
+            {0, 1, 1, 0},
+            {1, 1, 0, 0},
+            {0, 0, 0, 0}
+        },
+        {  // Rotação 270°
+            {0, 0, 1, 1},
+            {0, 1, 1, 0},
+            {0, 0, 0, 0},
+            {0, 0, 0, 0}
+        }
+    };
+
+    int ijlostz = rand()%7;
+
+        switch (ijlostz) {
+        case 1:
+            printf("Domingo\n");
+            int i = 0;
+            int j = 0;
+            int k = 0;
+                for (i = 0; i < SIZE_M; i++) {
+                    for (j = 0; j < SIZE_M; j++) {
+                        for (k = 0; k < SIZE_M; k++) {
+                            printf("%d ", matrix[i][j][k]);
+                        }
+                        
+                }
+        printf("\n");
+    }
+            break;
+        case 2:
+            printf("Segunda-feira\n");
+            break;
+        case 3:
+            printf("Terça-feira\n");
+            break;
+        case 4:
+            printf("Quarta-feira\n");
+            break;
+        case 5:
+            printf("Quinta-feira\n");
+            break;
+        case 6:
+            printf("Sexta-feira\n");
+            break;
+        case 7:
+            printf("Sábado\n");
+            break;
+        default:
+            printf("Número inválido! Digite um número entre 1 e 7.\n");
+            break;
+    }
+
+    
 }
 
 
