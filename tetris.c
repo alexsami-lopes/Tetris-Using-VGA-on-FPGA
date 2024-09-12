@@ -4,30 +4,31 @@
 #include <unistd.h>
 #include <string.h>
 #include <time.h>
-#include <intelfpgaup/KEY.h>  // Biblioteca para controle dos botões do DE1-SoC
+#include <intelfpgaup/KEY.h>   // Biblioteca para controle dos botões do DE1-SoC
 #include <intelfpgaup/video.h> // Biblioteca para controle da saída VGA no DE1-SoC
 
-int screen_x, screen_y;   // Resolução da tela VGA
-int block_side;           // Tamanho lateral de cada bloco
-int char_x, char_y;       // Coordenadas dos caracteres no display de texto
+int screen_x, screen_y; // Resolução da tela VGA
+int block_side;         // Tamanho lateral de cada bloco
+int char_x, char_y;     // Coordenadas dos caracteres no display de texto
 
-//typedef enum { false, true } bool;  // Definindo um tipo booleano
-// Estrutura para armazenar as coordenadas de canto superior esquerdo de cada bloco
+// typedef enum { false, true } bool;  // Definindo um tipo booleano
+//  Estrutura para armazenar as coordenadas de canto superior esquerdo de cada bloco
 typedef struct
 {
-    int top_left_point_x;  // Coordenada x do canto superior esquerdo do bloco
-    int top_left_point_y;  // Coordenada y do canto superior esquerdo do bloco
-    int filled = 0;        // Se o espaço de bloco está preenchido é 1, se não é 0 
+    int top_left_point_x; // Coordenada x do canto superior esquerdo do bloco
+    int top_left_point_y; // Coordenada y do canto superior esquerdo do bloco
+    int filled = 0;       // Se o espaço de bloco está preenchido é 1, se não é 0
 
 } Block_space;
 
 // Protótipos das funções
-void fill_matrix(Block_space matrix[24][10]);  // Preenche a matriz com blocos
-void print_matrix(Block_space matrix[24][10]); // Imprime e desenha a matriz
-void gen_line(int *, int *, int *, int *, unsigned *); // Gera uma linha aleatória na tela
-void gen_barrel(Block_space matrix[24][10]);  // Gera o barril central
-void gen_block(int, int, int, int, unsigned); // Gera um bloco na tela
-void gen_piece(Block_space matrix[24][10]); // Gera uma peça na tela
+void fill_matrix(Block_space matrix[24][10]);                       // Preenche a matriz com blocos
+void print_matrix(Block_space matrix[24][10]);                      // Imprime e desenha a matriz
+void gen_line(int *, int *, int *, int *, unsigned *);              // Gera uma linha aleatória na tela
+void gen_barrel(Block_space matrix[24][10]);                        // Gera o barril central
+void gen_block(int, int, int, int, unsigned);                       // Gera um bloco na tela
+void gen_piece(Block_space matrix[24][10]);                         // Gera uma peça na tela
+void print_piece(int piece_set[4][4], Block_space matrix[24][10]);  // Imprime uma peça aleatória de cor aleatória em um local aleatório do início da tela
 
 volatile sig_atomic_t stop; // Variável usada para sinalizar interrupção do programa
 
@@ -50,26 +51,27 @@ int main()
     srand((unsigned)time(&t));   // Inicializa o gerador de números aleatórios
 
     // Abre os drivers de dispositivo para os botões e a saída de vídeo
-    if (!KEY_open() || !video_open()) {
+    if (!KEY_open() || !video_open())
+    {
         printf("Erro ao abrir drivers KEY ou video.\n");
         return -1; // Sai se não conseguir abrir os drivers
     }
 
-
     video_read(&screen_x, &screen_y, &char_x, &char_y); // Lê as dimensões da tela e do texto
-    block_side = (screen_y * 0.8) / 24;    // Calcula o tamanho lateral de cada bloco com base na tela
+    block_side = (screen_y * 0.8) / 24;                 // Calcula o tamanho lateral de cada bloco com base na tela
 
-    video_erase();   // Limpa o conteúdo atual da tela
-    video_show();    // Mostra a tela limpa
-    video_clear();   // Limpa o buffer da tela (Back buffer)
-    fill_matrix(matrix); // Preenche a matriz com blocos
+    video_erase();        // Limpa o conteúdo atual da tela
+    video_show();         // Mostra a tela limpa
+    video_clear();        // Limpa o buffer da tela (Back buffer)
+    fill_matrix(matrix);  // Preenche a matriz com blocos
     print_matrix(matrix); // Desenha os blocos da matriz na tela
-    gen_piece(matrix); // Gera uma peça na tela
+    gen_piece(matrix);    // Gera uma peça na tela
 
     video_show(); // Mostra os gráficos gerados
 
     // Loop principal que continua até o usuário pressionar Ctrl+C
-    while (!stop) {
+    while (!stop)
+    {
         printf("Press a pushbutton KEY (^C to exit)\n");
         KEY_read(&KEY_data); // Lê o estado do botão
 
@@ -79,9 +81,9 @@ int main()
 
         // Gera uma linha aleatória na tela
         gen_line(&x1, &y1, &x2, &y2, &color);
-        video_show();       // Mostra a linha na tela
+        video_show();                      // Mostra a linha na tela
         video_line(x1, y1, x2, y2, color); // Desenha a linha
-        video_show();       // Atualiza a tela novamente com a linha desenhada
+        video_show();                      // Atualiza a tela novamente com a linha desenhada
     }
 
     // Fecha os drivers de vídeo e do botão
@@ -125,8 +127,8 @@ void gen_barrel(Block_space matrix[24][10])
 void gen_block(int x1, int y1, int x2, int y2, unsigned color)
 {
 
-    unsigned int border_color = video_GREY;    // Cor da borda do bloco (cinza)
-    int border_thickness = block_side - (block_side * 0.125);                 // Espessura da borda
+    unsigned int border_color = video_GREY;                   // Cor da borda do bloco (cinza)
+    int border_thickness = block_side - (block_side * 0.125); // Espessura da borda
 
     video_box(x1, y1, x2, y2, border_color);
 
@@ -156,8 +158,10 @@ void fill_matrix(Block_space matrix[24][10])
     // Preenche a matriz com coordenadas para cada bloco
     int i = 0;
     int j = 0;
-    for (i = 0; i < 24; i++) {
-        for (j = 0; j < 10; j++) {
+    for (i = 0; i < 24; i++)
+    {
+        for (j = 0; j < 10; j++)
+        {
             matrix[i][j].top_left_point_x = top_left_point_x;
             matrix[i][j].top_left_point_y = top_left_point_y;
             top_left_point_x += block_side;
@@ -172,22 +176,24 @@ void fill_matrix(Block_space matrix[24][10])
 // Função para imprimir e desenhar a matriz na tela
 void print_matrix(Block_space matrix[24][10])
 {
-    
+
     unsigned int video_color[] = {video_WHITE, video_YELLOW, video_RED,
-    video_GREEN, video_BLUE, video_CYAN, video_MAGENTA,
-    video_PINK, video_ORANGE};
-    unsigned color = video_color[(rand()%9)]; // Cor aleatória
+                                  video_GREEN, video_BLUE, video_CYAN, video_MAGENTA,
+                                  video_PINK, video_ORANGE};
+    unsigned color = video_color[(rand() % 9)]; // Cor aleatória
 
     // Desenha cada bloco na tela com base nas coordenadas da matriz
     int i = 0;
     int j = 0;
-    for (i = 0; i < 24; i++) {
-        for (j = 0; j < 10; j++) {
+    for (i = 0; i < 24; i++)
+    {
+        for (j = 0; j < 10; j++)
+        {
             int x1 = matrix[i][j].top_left_point_x;
             int y1 = matrix[i][j].top_left_point_y;
             int x2 = matrix[i][j].top_left_point_x + block_side;
             int y2 = matrix[i][j].top_left_point_y + block_side;
-            color = video_color[(rand()%9)];
+            color = video_color[(rand() % 9)];
             gen_block(x1, y1, x2, y2, color); // Desenha o bloco
         }
     }
@@ -210,241 +216,225 @@ void gen_line(int *x1, int *y1, int *x2, int *y2, unsigned *color)
 void gen_piece(Block_space matrix[24][10])
 {
 
-
-    #define SIZE_M 4
+#define SIZE_M 4
 
     // Define as matrizes para cada peça de Tetris e suas rotações
     int I[4][4][4] = {
-        {  // Rotação 0°
-            {0, 0, 0, 0},
-            {1, 1, 1, 1},
-            {0, 0, 0, 0},
-            {0, 0, 0, 0}
-        },
-        {  // Rotação 90°
-            {0, 1, 0, 0},
-            {0, 1, 0, 0},
-            {0, 1, 0, 0},
-            {0, 1, 0, 0}
-        },
-        {  // Rotação 180°
-            {0, 0, 0, 0},
-            {1, 1, 1, 1},
-            {0, 0, 0, 0},
-            {0, 0, 0, 0}
-        },
-        {  // Rotação 270°
-            {0, 1, 0, 0},
-            {0, 1, 0, 0},
-            {0, 1, 0, 0},
-            {0, 1, 0, 0}
-        }
-    };
+        {// Rotação 0°
+         {0, 0, 0, 0},
+         {1, 1, 1, 1},
+         {0, 0, 0, 0},
+         {0, 0, 0, 0}},
+        {// Rotação 90°
+         {0, 1, 0, 0},
+         {0, 1, 0, 0},
+         {0, 1, 0, 0},
+         {0, 1, 0, 0}},
+        {// Rotação 180°
+         {0, 0, 0, 0},
+         {1, 1, 1, 1},
+         {0, 0, 0, 0},
+         {0, 0, 0, 0}},
+        {// Rotação 270°
+         {0, 1, 0, 0},
+         {0, 1, 0, 0},
+         {0, 1, 0, 0},
+         {0, 1, 0, 0}}};
 
     int J[4][4][4] = {
-        {  // Rotação 0°
-            {0, 0, 0, 0},
-            {1, 1, 1, 0},
-            {0, 0, 1, 0},
-            {0, 0, 0, 0}
-        },
-        {  // Rotação 90°
-            {0, 1, 0, 0},
-            {0, 1, 1, 1},
-            {0, 0, 0, 0},
-            {0, 0, 0, 0}
-        },
-        {  // Rotação 180°
-            {0, 0, 0, 0},
-            {0, 1, 0, 0},
-            {1, 1, 1, 0},
-            {0, 0, 0, 0}
-        },
-        {  // Rotação 270°
-            {0, 0, 1, 0},
-            {1, 1, 1, 0},
-            {0, 0, 0, 0},
-            {0, 0, 0, 0}
-        }
-    };
+        {// Rotação 0°
+         {0, 0, 0, 0},
+         {1, 1, 1, 0},
+         {0, 0, 1, 0},
+         {0, 0, 0, 0}},
+        {// Rotação 90°
+         {0, 1, 0, 0},
+         {0, 1, 1, 1},
+         {0, 0, 0, 0},
+         {0, 0, 0, 0}},
+        {// Rotação 180°
+         {0, 0, 0, 0},
+         {0, 1, 0, 0},
+         {1, 1, 1, 0},
+         {0, 0, 0, 0}},
+        {// Rotação 270°
+         {0, 0, 1, 0},
+         {1, 1, 1, 0},
+         {0, 0, 0, 0},
+         {0, 0, 0, 0}}};
 
     int L[4][4][4] = {
-        {  // Rotação 0°
-            {0, 0, 0, 0},
-            {1, 1, 1, 0},
-            {1, 0, 0, 0},
-            {0, 0, 0, 0}
-        },
-        {  // Rotação 90°
-            {0, 1, 0, 0},
-            {0, 1, 0, 0},
-            {0, 1, 1, 0},
-            {0, 0, 0, 0}
-        },
-        {  // Rotação 180°
-            {0, 0, 0, 0},
-            {0, 1, 1, 1},
-            {0, 0, 0, 1},
-            {0, 0, 0, 0}
-        },
-        {  // Rotação 270°
-            {1, 1, 0, 0},
-            {0, 1, 0, 0},
-            {0, 1, 0, 0},
-            {0, 0, 0, 0}
-        }
-    };
+        {// Rotação 0°
+         {0, 0, 0, 0},
+         {1, 1, 1, 0},
+         {1, 0, 0, 0},
+         {0, 0, 0, 0}},
+        {// Rotação 90°
+         {0, 1, 0, 0},
+         {0, 1, 0, 0},
+         {0, 1, 1, 0},
+         {0, 0, 0, 0}},
+        {// Rotação 180°
+         {0, 0, 0, 0},
+         {0, 1, 1, 1},
+         {0, 0, 0, 1},
+         {0, 0, 0, 0}},
+        {// Rotação 270°
+         {1, 1, 0, 0},
+         {0, 1, 0, 0},
+         {0, 1, 0, 0},
+         {0, 0, 0, 0}}};
 
     int O[4][4][4] = {
-        {  // Rotação 0°
-            {0, 0, 0, 0},
-            {0, 1, 1, 0},
-            {0, 1, 1, 0},
-            {0, 0, 0, 0}
-        },
-        {  // Rotação 90°
-            {0, 0, 0, 0},
-            {0, 1, 1, 0},
-            {0, 1, 1, 0},
-            {0, 0, 0, 0}
-        },
-        {  // Rotação 180°
-            {0, 0, 0, 0},
-            {0, 1, 1, 0},
-            {0, 1, 1, 0},
-            {0, 0, 0, 0}
-        },
-        {  // Rotação 270°
-            {0, 0, 0, 0},
-            {0, 1, 1, 0},
-            {0, 1, 1, 0},
-            {0, 0, 0, 0}
-        }
-    };
+        {// Rotação 0°
+         {0, 0, 0, 0},
+         {0, 1, 1, 0},
+         {0, 1, 1, 0},
+         {0, 0, 0, 0}},
+        {// Rotação 90°
+         {0, 0, 0, 0},
+         {0, 1, 1, 0},
+         {0, 1, 1, 0},
+         {0, 0, 0, 0}},
+        {// Rotação 180°
+         {0, 0, 0, 0},
+         {0, 1, 1, 0},
+         {0, 1, 1, 0},
+         {0, 0, 0, 0}},
+        {// Rotação 270°
+         {0, 0, 0, 0},
+         {0, 1, 1, 0},
+         {0, 1, 1, 0},
+         {0, 0, 0, 0}}};
 
     int S[4][4][4] = {
-        {  // Rotação 0°
-            {0, 0, 0, 0},
-            {0, 1, 1, 0},
-            {1, 1, 0, 0},
-            {0, 0, 0, 0}
-        },
-        {  // Rotação 90°
-            {0, 1, 0, 0},
-            {0, 1, 1, 1},
-            {0, 0, 1, 0},
-            {0, 0, 0, 0}
-        },
-        {  // Rotação 180°
-            {0, 0, 0, 0},
-            {0, 1, 1, 0},
-            {1, 1, 0, 0},
-            {0, 0, 0, 0}
-        },
-        {  // Rotação 270°
-            {0, 1, 0, 0},
-            {0, 1, 1, 1},
-            {0, 0, 1, 0},
-            {0, 0, 0, 0}
-        }
-    };
+        {// Rotação 0°
+         {0, 0, 0, 0},
+         {0, 1, 1, 0},
+         {1, 1, 0, 0},
+         {0, 0, 0, 0}},
+        {// Rotação 90°
+         {0, 1, 0, 0},
+         {0, 1, 1, 1},
+         {0, 0, 1, 0},
+         {0, 0, 0, 0}},
+        {// Rotação 180°
+         {0, 0, 0, 0},
+         {0, 1, 1, 0},
+         {1, 1, 0, 0},
+         {0, 0, 0, 0}},
+        {// Rotação 270°
+         {0, 1, 0, 0},
+         {0, 1, 1, 1},
+         {0, 0, 1, 0},
+         {0, 0, 0, 0}}};
 
     int T[4][4][4] = {
-        {  // Rotação 0°
-            {0, 0, 0, 0},
-            {1, 1, 1, 0},
-            {0, 1, 0, 0},
-            {0, 0, 0, 0}
-        },
-        {  // Rotação 90°
-            {0, 1, 0, 0},
-            {1, 1, 1, 0},
-            {0, 0, 0, 0},
-            {0, 0, 0, 0}
-        },
-        {  // Rotação 180°
-            {0, 0, 0, 0},
-            {0, 1, 0, 0},
-            {1, 1, 1, 0},
-            {0, 0, 0, 0}
-        },
-        {  // Rotação 270°
-            {0, 1, 0, 0},
-            {1, 1, 1, 0},
-            {0, 0, 0, 0},
-            {0, 0, 0, 0}
-        }
-    };
+        {// Rotação 0°
+         {0, 0, 0, 0},
+         {1, 1, 1, 0},
+         {0, 1, 0, 0},
+         {0, 0, 0, 0}},
+        {// Rotação 90°
+         {0, 1, 0, 0},
+         {1, 1, 1, 0},
+         {0, 0, 0, 0},
+         {0, 0, 0, 0}},
+        {// Rotação 180°
+         {0, 0, 0, 0},
+         {0, 1, 0, 0},
+         {1, 1, 1, 0},
+         {0, 0, 0, 0}},
+        {// Rotação 270°
+         {0, 1, 0, 0},
+         {1, 1, 1, 0},
+         {0, 0, 0, 0},
+         {0, 0, 0, 0}}};
 
     int Z[4][4][4] = {
-        {  // Rotação 0°
-            {0, 0, 0, 0},
-            {1, 1, 0, 0},
-            {0, 1, 1, 0},
-            {0, 0, 0, 0}
-        },
-        {  // Rotação 90°
-            {0, 0, 1, 1},
-            {0, 1, 1, 0},
-            {0, 0, 0, 0},
-            {0, 0, 0, 0}
-        },
-        {  // Rotação 180°
-            {0, 0, 0, 0},
-            {0, 1, 1, 0},
-            {1, 1, 0, 0},
-            {0, 0, 0, 0}
-        },
-        {  // Rotação 270°
-            {0, 0, 1, 1},
-            {0, 1, 1, 0},
-            {0, 0, 0, 0},
-            {0, 0, 0, 0}
-        }
-    };
+        {// Rotação 0°
+         {0, 0, 0, 0},
+         {1, 1, 0, 0},
+         {0, 1, 1, 0},
+         {0, 0, 0, 0}},
+        {// Rotação 90°
+         {0, 0, 1, 1},
+         {0, 1, 1, 0},
+         {0, 0, 0, 0},
+         {0, 0, 0, 0}},
+        {// Rotação 180°
+         {0, 0, 0, 0},
+         {0, 1, 1, 0},
+         {1, 1, 0, 0},
+         {0, 0, 0, 0}},
+        {// Rotação 270°
+         {0, 0, 1, 1},
+         {0, 1, 1, 0},
+         {0, 0, 0, 0},
+         {0, 0, 0, 0}}};
 
-    int ijlostz = rand()%7;
+    int ijlostz = rand() % 7;
 
-        switch (ijlostz) {
-        case 1:
-            printf("Domingo\n");
-            int i = 0;
-            int j = 0;
-            int k = 0;
-                for (i = 0; i < SIZE_M; i++) {
-                    for (j = 0; j < SIZE_M; j++) {
-                        for (k = 0; k < SIZE_M; k++) {
-                            printf("%d ", matrix[i][j][k]);
-                        }
-                        
-                }
-        printf("\n");
+    switch (ijlostz)
+    {
+    case 1:
+        int k = rand() % 4;
+        print_piece(I[k], matrix);
+        break;
+    case 2:
+        int k = rand() % 4;
+        print_piece(J[k], matrix);
+        break;
+    case 3:
+        int k = rand() % 4;
+        print_piece(L[k], matrix);
+        break;
+    case 4:
+        int k = rand() % 4;
+        print_piece(O[k], matrix);
+        break;
+    case 5:
+        int k = rand() % 4;
+        print_piece(S[k], matrix);
+        break;
+    case 6:
+        int k = rand() % 4;
+        print_piece(T[k], matrix);
+        break;
+    case 7:
+        int k = rand() % 4;
+        print_piece(Z[k], matrix);
+        break;
+    default:
+        int k = rand() % 4;
+        print_piece(I[k], matrix);
+        break;
     }
-            break;
-        case 2:
-            printf("Segunda-feira\n");
-            break;
-        case 3:
-            printf("Terça-feira\n");
-            break;
-        case 4:
-            printf("Quarta-feira\n");
-            break;
-        case 5:
-            printf("Quinta-feira\n");
-            break;
-        case 6:
-            printf("Sexta-feira\n");
-            break;
-        case 7:
-            printf("Sábado\n");
-            break;
-        default:
-            printf("Número inválido! Digite um número entre 1 e 7.\n");
-            break;
-    }
-
-    
 }
+/* Função para imprimir uma peça aleatória de cor aleatória em um local aleatório do início da tela
+   Essa função só deve ser chamada dentro da função gen_piece */
+void print_piece(int piece_set[4][4], Block_space matrix[24][10])
+{
+    int i = 0;
+    int j = 0;
+    int m = rand() % 6;
+    unsigned color = video_color[(rand() % 9)]; // Cor aleatória
+    for (i = 0; i < SIZE_M; i++)
+    {
+        for (j = 0; j < SIZE_M; j++)
+        {
+            matrix[i][j + m].filled = piece_set[i][j];
+            if (piece_set[i][j])
+            {
+                int x1 = matrix[i][j].top_left_point_x;
+                int y1 = matrix[i][j].top_left_point_y;
+                int x2 = matrix[i][j].top_left_point_x + block_side;
+                int y2 = matrix[i][j].top_left_point_y + block_side;
+                gen_block(x1, y1, x2, y2, color); // Desenha o bloco
+            }
+        }
+    }
+}
+
 
 
