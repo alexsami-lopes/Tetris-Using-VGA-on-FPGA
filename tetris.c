@@ -96,23 +96,23 @@ void gen_barrel(Block_space matrix[24][10])
 
     // Parte inferior do barril
     int x1 = matrix[23][0].top_left_point_x - block_side;
-    int y1 = matrix[23][0].top_left_point_y - block_side;
-    int x2 = matrix[23][10].top_left_point_x + (block_side * 2);
-    int y2 = matrix[23][10].top_left_point_y - (block_side * 2);
+    int y1 = matrix[23][0].top_left_point_y + block_side;
+    int x2 = matrix[23][9].top_left_point_x + (block_side * 2);
+    int y2 = matrix[23][9].top_left_point_y + (block_side * 2);
     video_box(x1, y1, x2, y2, color); // Desenha a parte inferior do barril
 
     // Parte esquerda do barril
     x1 = matrix[4][0].top_left_point_x - block_side;
     y1 = matrix[4][0].top_left_point_y;
     x2 = matrix[23][0].top_left_point_x;
-    y2 = matrix[23][0].top_left_point_y - block_side;
+    y2 = matrix[23][0].top_left_point_y + block_side;
     video_box(x1, y1, x2, y2, color); // Desenha a parte esquerda do barril
 
     // Parte direita do barril
-    x1 = matrix[4][10].top_left_point_x + block_side;
-    y1 = matrix[4][10].top_left_point_y;
-    x2 = matrix[23][10].top_left_point_x + (block_side * 2);
-    y2 = matrix[23][10].top_left_point_y - block_side;
+    x1 = matrix[4][9].top_left_point_x + block_side;
+    y1 = matrix[4][9].top_left_point_y;
+    x2 = matrix[23][9].top_left_point_x + (block_side * 2);
+    y2 = matrix[23][9].top_left_point_y + block_side;
     video_box(x1, y1, x2, y2, color); // Desenha a parte direita do barril
 }
 
@@ -137,20 +137,22 @@ void gen_block(int x1, int y1, int x2, int y2, unsigned color)
 void fill_matrix(Block_space matrix[24][10])
 {
     // Calcula as dimensões da matriz com base no tamanho da tela e do bloco
-    int matrix_width = screen_x - (10 * block_side);
-    int matrix_height = screen_y - (screen_y * 0.8);
+    int matrix_width = (10 * block_side);
+    int matrix_height = screen_y * 0.8;
     int center_x = screen_x / 2;
-    int base_y = screen_y - (screen_y * 0.9);
+    int base_y = screen_y * 0.1;
 
     // Define as coordenadas iniciais para o primeiro bloco
     int initial_matrix_point_x = center_x - matrix_width / 2;
-    int initial_matrix_point_y = base_y - matrix_height;
+    int initial_matrix_point_y = screen_y - matrix_height - base_y;
     int top_left_point_x = initial_matrix_point_x;
     int top_left_point_y = initial_matrix_point_y;
 
     // Preenche a matriz com coordenadas para cada bloco
-    for (int i = 0; i < 24; i++) {
-        for (int j = 0; j < 10; j++) {
+    int i = 0;
+    int j = 0;
+    for (i = 0; i < 24; i++) {
+        for (j = 0; j < 10; j++) {
             matrix[i][j].top_left_point_x = top_left_point_x;
             matrix[i][j].top_left_point_y = top_left_point_y;
             top_left_point_x += block_side;
@@ -172,8 +174,10 @@ void print_matrix(Block_space matrix[24][10])
     unsigned color = video_color[(rand()%9)]; // Cor aleatória
 
     // Desenha cada bloco na tela com base nas coordenadas da matriz
-    for (int i = 0; i < 24; i++) {
-        for (int j = 0; j < 10; j++) {
+    int i = 0;
+    int j = 0;
+    for (i = 0; i < 24; i++) {
+        for (j = 0; j < 10; j++) {
             int x1 = matrix[i][j].top_left_point_x;
             int y1 = matrix[i][j].top_left_point_y;
             int x2 = matrix[i][j].top_left_point_x + block_side;
