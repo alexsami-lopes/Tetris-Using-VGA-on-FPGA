@@ -11,26 +11,36 @@ int screen_x, screen_y; // Resolução da tela VGA
 int block_side;         // Tamanho lateral de cada bloco
 int char_x, char_y;     // Coordenadas dos caracteres no display de texto
 
+#define SIZE_M 4
+
 // typedef enum { false, true } bool;  // Definindo um tipo booleano
 //  Estrutura para armazenar as coordenadas de canto superior esquerdo de cada bloco
 typedef struct
 {
-    int top_left_point_x; // Coordenada x do canto superior esquerdo do bloco
-    int top_left_point_y; // Coordenada y do canto superior esquerdo do bloco
-    int filled = 0;       // Se o espaço de bloco está preenchido é 1, se não é 0
+    int top_left_point_x;         // Coordenada x do canto superior esquerdo do bloco
+    int top_left_point_y;         // Coordenada y do canto superior esquerdo do bloco
+    int filled;                   // Se o espaço de bloco está preenchido é 1, se não é 0
+    unsigned color;               // Cor do bloco armazenado no espaço, se houver
 
 } Block_space;
 
-// Protótipos das funções
-void fill_matrix(Block_space matrix[24][10]);                       // Preenche a matriz com blocos
-void print_matrix(Block_space matrix[24][10]);                      // Imprime e desenha a matriz
-void gen_line(int *, int *, int *, int *, unsigned *);              // Gera uma linha aleatória na tela
-void gen_barrel(Block_space matrix[24][10]);                        // Gera o barril central
-void gen_block(int, int, int, int, unsigned);                       // Gera um bloco na tela
-void gen_piece(Block_space matrix[24][10]);                         // Gera uma peça na tela
-void print_piece(int piece_set[4][4], Block_space matrix[24][10]);  // Imprime uma peça aleatória de cor aleatória em um local aleatório do início da tela
+// Estrutura para encapsular a matriz 4x4 que representa uma peça
+typedef struct
+{
+    Block_space blocks_coordinates[4][4];
+} Tetris_Piece;
 
-volatile sig_atomic_t stop; // Variável usada para sinalizar interrupção do programa
+// Protótipos das funções
+void fill_matrix(Block_space matrix[24][10]);                                             // Preenche a matriz com blocos
+void print_matrix(Block_space matrix[24][10]);                                            // Imprime e desenha a matriz
+void gen_line(int *, int *, int *, int *, unsigned *);                                    // Gera uma linha aleatória na tela
+void gen_barrel(Block_space matrix[24][10]);                                              // Gera o barril central
+void gen_block(int, int, int, int, unsigned);                                             // Gera um bloco na tela
+Tetris_Piece gen_piece(Block_space matrix[24][10]);                                       // Gera uma peça na tela
+Tetris_Piece print_piece(int piece_set[4][4], Block_space matrix[24][10]);                // Imprime uma peça aleatória de cor aleatória em um local aleatório do início da tela
+Tetris_Piece push_piece_down(Tetris_Piece piece_To_Be_Pushed, Block_space matrix[24][10]) // Empurra peça de tetris para baixo
+
+    volatile sig_atomic_t stop; // Variável usada para sinalizar interrupção do programa
 
 // Função de callback para capturar o sinal SIGINT (Ctrl+C) e encerrar o programa
 void catchSIGINT(int signum)
@@ -60,12 +70,14 @@ int main()
     video_read(&screen_x, &screen_y, &char_x, &char_y); // Lê as dimensões da tela e do texto
     block_side = (screen_y * 0.8) / 24;                 // Calcula o tamanho lateral de cada bloco com base na tela
 
-    video_erase();        // Limpa o conteúdo atual da tela
-    video_show();         // Mostra a tela limpa
-    video_clear();        // Limpa o buffer da tela (Back buffer)
-    fill_matrix(matrix);  // Preenche a matriz com blocos
-    print_matrix(matrix); // Desenha os blocos da matriz na tela
-    gen_piece(matrix);    // Gera uma peça na tela
+    video_erase();                                    // Limpa o conteúdo atual da tela
+    video_show();                                     // Mostra a tela limpa
+    video_clear();                                    // Limpa o buffer da tela (Back buffer)
+    fill_matrix(matrix);                              // Preenche a matriz com blocos
+    //print_matrix(matrix);                             // Desenha os blocos da matriz na tela
+    Tetris_Piece generated_Piece = gen_piece(matrix); // Gera uma peça na tela
+    sleep(2);
+    push_piece_down(generated_Piece);
 
     video_show(); // Mostra os gráficos gerados
 
@@ -164,6 +176,8 @@ void fill_matrix(Block_space matrix[24][10])
         {
             matrix[i][j].top_left_point_x = top_left_point_x;
             matrix[i][j].top_left_point_y = top_left_point_y;
+            matrix[i][j].filled = 0;
+            matrix[i][j].color = video_WHITE;
             top_left_point_x += block_side;
         }
         top_left_point_x = initial_matrix_point_x;
@@ -213,10 +227,10 @@ void gen_line(int *x1, int *y1, int *x2, int *y2, unsigned *color)
     *color = line_color[color_idx]; // Define a cor da linha
 }
 
-void gen_piece(Block_space matrix[24][10])
+Tetris_Piece gen_piece(Block_space matrix[24][10])
 {
 
-#define SIZE_M 4
+    Tetris_Piece generated_Piece;
 
     // Define as matrizes para cada peça de Tetris e suas rotações
     int I[4][4][4] = {
@@ -379,62 +393,120 @@ void gen_piece(Block_space matrix[24][10])
     {
     case 1:
         int k = rand() % 4;
-        print_piece(I[k], matrix);
+        generated_Piece = print_piece(I[k], matrix);
         break;
     case 2:
         int k = rand() % 4;
-        print_piece(J[k], matrix);
+        generated_Piece = print_piece(J[k], matrix);
         break;
     case 3:
         int k = rand() % 4;
-        print_piece(L[k], matrix);
+        generated_Piece = print_piece(L[k], matrix);
         break;
     case 4:
         int k = rand() % 4;
-        print_piece(O[k], matrix);
+        generated_Piece = print_piece(O[k], matrix);
         break;
     case 5:
         int k = rand() % 4;
-        print_piece(S[k], matrix);
+        generated_Piece = print_piece(S[k], matrix);
         break;
     case 6:
         int k = rand() % 4;
-        print_piece(T[k], matrix);
+        generated_Piece = print_piece(T[k], matrix);
         break;
     case 7:
         int k = rand() % 4;
-        print_piece(Z[k], matrix);
+        generated_Piece = print_piece(Z[k], matrix);
         break;
     default:
         int k = rand() % 4;
-        print_piece(I[k], matrix);
+        generated_Piece = print_piece(I[k], matrix);
         break;
     }
+
+    return generated_Piece;
 }
 /* Função para imprimir uma peça aleatória de cor aleatória em um local aleatório do início da tela
    Essa função só deve ser chamada dentro da função gen_piece */
-void print_piece(int piece_set[4][4], Block_space matrix[24][10])
+Tetris_Piece print_piece(int piece_set[4][4], Block_space matrix[24][10])
 {
     int i = 0;
     int j = 0;
     int m = rand() % 6;
     unsigned color = video_color[(rand() % 9)]; // Cor aleatória
+    Tetris_Piece generated_Piece;
     for (i = 0; i < SIZE_M; i++)
     {
         for (j = 0; j < SIZE_M; j++)
         {
-            matrix[i][j + m].filled = piece_set[i][j];
-            if (piece_set[i][j])
+            if ((j + m) < 10)
+            {
+                matrix[i][j + m].filled = piece_set[i][j];
+                generated_Piece.blocks_coordinates[i][j].top_left_point_x = matrix[i][j + m].top_left_point_x;
+                generated_Piece.blocks_coordinates[i][j].top_left_point_y = matrix[i][j + m].top_left_point_y;
+                generated_Piece.blocks_coordinates[i][j].filled = piece_set[i][j];
+                if (piece_set[i][j])
+                {
+                    int x1 = matrix[i][j + m].top_left_point_x;
+                    int y1 = matrix[i][j + m].top_left_point_y;
+                    int x2 = matrix[i][j + m].top_left_point_x + block_side;
+                    int y2 = matrix[i][j + m].top_left_point_y + block_side;
+                    matrix[i][j + m].color = color;
+                    gen_block(x1, y1, x2, y2, color); // Desenha o bloco
+                }
+            }
+        }
+    }
+
+    return generated_Piece;
+}
+
+Tetris_Piece push_piece_down(Tetris_Piece piece_To_Be_Pushed, Block_space matrix[24][10])
+{
+    Tetris_Piece pushed_Piece;
+    unsigned color;
+
+    video_erase();      // Limpa o conteúdo atual da tela
+    video_show();       // Mostra a tela limpa
+    video_clear();      // Limpa o buffer da tela (Back buffer)
+    gen_barrel(matrix); // Gera o barril na matriz
+
+    // Preenche a matriz com coordenadas para cada bloco
+    int i = 0;
+    int j = 0;
+    for (i = 0; i < 24; i++)
+    {
+        for (j = 0; j < 10; j++)
+        {
+            if (matrix[i][j].filled)
             {
                 int x1 = matrix[i][j].top_left_point_x;
                 int y1 = matrix[i][j].top_left_point_y;
                 int x2 = matrix[i][j].top_left_point_x + block_side;
                 int y2 = matrix[i][j].top_left_point_y + block_side;
+                color = matrix[i][j].color;
                 gen_block(x1, y1, x2, y2, color); // Desenha o bloco
             }
         }
     }
-}
 
+    for (i = 0; i < SIZE_M; i++)
+    {
+        for (j = 0; j < SIZE_M; j++)
+        {
+            piece_To_Be_Pushed.blocks_coordinates[i][j].top_left_point_y += 10;
+            int x1 = piece_To_Be_Pushed.blocks_coordinates[i][j].top_left_point_x;
+            int y1 = piece_To_Be_Pushed.blocks_coordinates[i][j].top_left_point_y;
+            int x2 = piece_To_Be_Pushed.blocks_coordinates[i][j].top_left_point_x + block_side;
+            int y2 = piece_To_Be_Pushed.blocks_coordinates[i][j].top_left_point_y + block_side;
+            color = piece_To_Be_Pushed.blocks_coordinates[i][j].color;
+            gen_block(x1, y1, x2, y2, color); // Desenha o bloco
+        }
+    }
+    pushed_Piece = piece_To_Be_Pushed;
+
+    return pushed_Piece;
+}
 
 
