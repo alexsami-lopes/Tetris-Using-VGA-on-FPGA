@@ -355,14 +355,14 @@ Tetris_Piece gen_piece(Block_space matrix[24][10])
          {0, 0, 0, 0},
          {0, 0, 0, 0}},
         {// Rotação 180°
-         {0, 0, 0, 0},
-         {0, 1, 0, 0},
-         {1, 1, 1, 0},
+         {1, 0, 0, 0},
+         {1, 1, 0, 0},
+         {1, 0, 0, 0},
          {0, 0, 0, 0}},
         {// Rotação 270°
          {0, 1, 0, 0},
-         {1, 1, 1, 0},
-         {0, 0, 0, 0},
+         {1, 1, 0, 0},
+         {0, 1, 0, 0},
          {0, 0, 0, 0}}};
 
     int Z[4][4][4] = {
@@ -377,14 +377,14 @@ Tetris_Piece gen_piece(Block_space matrix[24][10])
          {0, 0, 0, 0},
          {0, 0, 0, 0}},
         {// Rotação 180°
-         {0, 0, 0, 0},
-         {0, 1, 1, 0},
+         {1, 0, 0, 0},
          {1, 1, 0, 0},
+         {0, 1, 0, 0},
          {0, 0, 0, 0}},
         {// Rotação 270°
-         {0, 0, 1, 1},
-         {0, 1, 1, 0},
-         {0, 0, 0, 0},
+         {0, 1, 0, 0},
+         {1, 1, 0, 0},
+         {1, 0, 0, 0},
          {0, 0, 0, 0}}};
 
     int ijlostz = rand() % 7;
@@ -392,36 +392,36 @@ Tetris_Piece gen_piece(Block_space matrix[24][10])
     switch (ijlostz)
     {
     case 1:
-        int k = rand() % 4;
-        generated_Piece = print_piece(I[k], matrix);
+        int rotation = rand() % 4;
+        generated_Piece = print_piece(I[rotation], matrix);
         break;
     case 2:
-        int k = rand() % 4;
-        generated_Piece = print_piece(J[k], matrix);
+        int rotation = rand() % 4;
+        generated_Piece = print_piece(J[rotation], matrix);
         break;
     case 3:
-        int k = rand() % 4;
-        generated_Piece = print_piece(L[k], matrix);
+        int rotation = rand() % 4;
+        generated_Piece = print_piece(L[rotation], matrix);
         break;
     case 4:
-        int k = rand() % 4;
-        generated_Piece = print_piece(O[k], matrix);
+        int rotation = rand() % 4;
+        generated_Piece = print_piece(O[rotation], matrix);
         break;
     case 5:
-        int k = rand() % 4;
-        generated_Piece = print_piece(S[k], matrix);
+        int rotation = rand() % 4;
+        generated_Piece = print_piece(S[rotation], matrix);
         break;
     case 6:
-        int k = rand() % 4;
-        generated_Piece = print_piece(T[k], matrix);
+        int rotation = rand() % 4;
+        generated_Piece = print_piece(T[rotation], matrix);
         break;
     case 7:
-        int k = rand() % 4;
-        generated_Piece = print_piece(Z[k], matrix);
+        int rotation = rand() % 4;
+        generated_Piece = print_piece(Z[rotation], matrix);
         break;
     default:
-        int k = rand() % 4;
-        generated_Piece = print_piece(I[k], matrix);
+        int rotation = rand() % 4;
+        generated_Piece = print_piece(I[rotation], matrix);
         break;
     }
 
