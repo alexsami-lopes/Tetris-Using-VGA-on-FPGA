@@ -69,7 +69,10 @@ This project involves developing a Tetris game for the DE1-SoC development board
 ![Game on VGA](images/game-on.jpeg)
 ![Game on VGA](images/game-on-pause.jpeg)
 ![Game on VGA](images/game-over.jpeg)
-![Game on VGA](images/tetris-video.gif)
+<p align="center">
+  <img src="images/tetris-video.gif" alt="Game on VGA" width="600"/>
+</p>
+
 
 ## Testing
 During the testing phase, the following steps were taken:
