@@ -47,7 +47,7 @@ Este projeto envolve o desenvolvimento de um jogo de Tetris para a placa de dese
 1. **Clonar o Repositório**:
     ```bash
     git clone https://github.com/alexsami-lopes/Digital-Systems-Tetris.git
-    cd Digital-Systems-Tetris
+    cd Digital-Systems-Tetris-main
     ```
 
 2. **Compilar o Código**:
