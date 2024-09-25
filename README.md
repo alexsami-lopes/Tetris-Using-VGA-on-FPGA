@@ -127,5 +127,6 @@ The project successfully demonstrated the integration of hardware and software o
 ## Additional Research Material
 - [DE1-SoC User Manual](datasheets/user_manual.pdf)
 - [ADXL345 Accelerometer Datasheet](datasheets/Accelerometer.pdf)
+- [Base Research Material for Acelerometer](https://github.com/VimfulDang/ADXL345-Accelerometer-DE1-SOC/tree/master)
 
 - [Return to Table of Contents](#table-of-contents)
