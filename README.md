@@ -51,7 +51,7 @@ This project involves developing a Tetris game for the DE1-SoC development board
 1. **Clone the Repository**:
     ```bash
     git clone https://github.com/alexsami-lopes/Digital-Systems-Tetris.git
-    cd Digital-Systems-Tetris
+    cd Digital-Systems-Tetris-main
     ```
 
 2. **Compile the Code**:
