@@ -71,9 +71,6 @@ This project involves developing a Tetris game for the DE1-SoC development board
 ![Game on VGA](images/game-over.jpeg)
 ![Game on VGA](images/tetris-video.gif)
 
-### Accelerometer and Other Components
-![Accelerometer](images/accelerometer.jpg)
-
 ## Testing
 During the testing phase, the following steps were taken:
 1. Verified connections between the DE1-SoC and peripherals (VGA).
