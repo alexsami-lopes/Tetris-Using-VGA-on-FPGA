@@ -66,7 +66,10 @@ This project involves developing a Tetris game for the DE1-SoC development board
 ![DE1-SoC Board](images/de1-soc-board.jpg)
 
 ### VGA Display Showing the Game
-![Game on VGA](images/vga-display.jpg)
+![Game on VGA](images/game-on.jpeg)
+![Game on VGA](images/game-on-pause.jpeg)
+![Game on VGA](images/game-over.jpeg)
+![Game on VGA](images/tetris-video.gif)
 
 ### Accelerometer and Other Components
 ![Accelerometer](images/accelerometer.jpg)
