@@ -120,5 +120,5 @@ O projeto demonstrou com sucesso a integração de hardware e software na placa 
 ## Materiais de Pesquisa Adicionais
 - [Manual do Usuário DE1-SoC](datasheets/user_manual.pdf)
 - [Datasheet do Acelerômetro ADXL345](datasheets/Accelerometer.pdf)
-
+- [Material de base de pesquisa do Acelerômetro](https://github.com/VimfulDang/ADXL345-Accelerometer-DE1-SOC/tree/master)
 - [Retornar ao Índice](#índice)
