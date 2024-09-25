@@ -33,7 +33,7 @@ This project involves developing a Tetris game for the DE1-SoC development board
   - **CPU**: ARM Cortex-A9
   - **Memory**: 1GB DDR3
   - **Video Output**: VGA
-  - **Input**: Accelerometer, push buttons, LEDs, 7-segment display
+  - **Input**: Accelerometer, push buttons
 
 ### Connections
 1. **VGA Monitor**: Connect to the VGA output of the DE1-SoC.
