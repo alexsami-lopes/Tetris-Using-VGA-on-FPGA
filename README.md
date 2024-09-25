@@ -45,7 +45,7 @@ This project involves developing a Tetris game for the DE1-SoC development board
 ## How to Compile and Run
 1. **Clone the Repository**:
     ```bash
-    git clone https://github.com/yourusername/tetris-de1-soc.git
+    git clone https://github.com/alexsami-lopes/Digital-Systems-Tetris.git
     cd tetris-de1-soc
     ```
 
