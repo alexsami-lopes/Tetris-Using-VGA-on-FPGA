@@ -3,14 +3,28 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../include/graphics.h"
+#include "../include/graphics_fpga.h"
 #include "../include/address_map_arm.h"
-#include <intelfpgaup/video.h>
+//#include <intelfpgaup/video.h>
 
 // Variáveis globais usadas para controlar o estado atual da peça
 extern int current_piece_pos_i; // Posição da peça atual no eixo Y (vertical)
 extern int current_piece_pos_j; // Posição da peça atual no eixo X (horizontal)
 extern int screen_x, screen_y, block_side, total_score, colision;
 extern int char_x, char_y;     // Coordenadas dos caracteres no display de texto
+
+// Definição de cores em 16 bits RGB
+#define video_WHITE   0xFFFF
+#define video_YELLOW  0xFFE0
+#define video_RED     0xF800
+#define video_GREEN   0x07E0
+#define video_BLUE    0x041F
+#define video_CYAN    0x07FF
+#define video_MAGENTA 0xF81F
+#define video_GREY    0xC618
+#define video_PINK    0xFC18
+#define video_ORANGE  0xFC00
+#define video_BLACK   0x0000
 
 // Função para gerar o barril na tela
 void gen_barrel(Block_space matrix[24][10])
@@ -25,41 +39,69 @@ void gen_barrel(Block_space matrix[24][10])
     int y1 = matrix[23][0].top_left_point_y + block_side + border;
     int x2 = matrix[23][9].top_left_point_x + (block_side * 2);
     int y2 = matrix[23][9].top_left_point_y + (block_side * 2);
-    video_box(x1, y1, x2, y2, color); // Desenha a parte inferior do barril
+    //video_box(x1, y1, x2, y2, color); // Desenha a parte inferior do barril
+    x1 = x1;
+    while(x1 < x2)
+    {
+        video_to_fpga(x1, y1, color);
+        x1 += 16;
+    }
+    
 
     // Parte esquerda do barril
     x1 = matrix[4][0].top_left_point_x - block_side;
     y1 = matrix[4][0].top_left_point_y;
-    x2 = matrix[23][0].top_left_point_x - border;
-    y2 = matrix[23][0].top_left_point_y + block_side + border;
-    video_box(x1, y1, x2, y2, color); // Desenha a parte esquerda do barril
+    //x2 = matrix[23][0].top_left_point_x - border;
+    //y2 = matrix[23][0].top_left_point_y + block_side + border;
+    //video_box(x1, y1, x2, y2, color); // Desenha a parte esquerda do barril
+    y1 = y1;
+    while(y1 < y2)
+    {
+        video_to_fpga(x1, y1, color);
+        y1 += 16;
+    }
+    //video_to_fpga(x1, y1, color);
 
     // Parte direita do barril
     x1 = matrix[4][9].top_left_point_x + block_side + border;
     y1 = matrix[4][9].top_left_point_y;
-    x2 = matrix[23][9].top_left_point_x + (block_side * 2);
-    y2 = matrix[23][9].top_left_point_y + block_side + border;
-    video_box(x1, y1, x2, y2, color); // Desenha a parte direita do barril
-    draw_points_word_with_number(total_score);
+    //x2 = matrix[23][9].top_left_point_x + (block_side * 2);
+    //y2 = matrix[23][9].top_left_point_y + block_side + border;
+    //video_box(x1, y1, x2, y2, color); // Desenha a parte direita do barril
+    //video_to_fpga(x1, y1, color);
+    y1 = y1;
+    while(y1 < y2)
+    {
+        video_to_fpga(x1, y1, color);
+        y1 += 16;
+    }
+    //draw_points_word_with_number(total_score);
     sprintf(msg_buffer, "BUTTONS: PAUSE | RESET | EXIT");
-    video_text ((char_x / 2) - (strlen(msg_buffer) / 2), char_y - 1, msg_buffer);
+    //video_text ((char_x / 2) - (strlen(msg_buffer) / 2), char_y - 1, msg_buffer);
 }
 
 // Função para gerar um bloco na tela
 void gen_block(int x1, int y1, int x2, int y2, unsigned color)
 {
+    int x22 = x2 + 1;
+    int y22 = y2 + 1;
 
-    unsigned int border_color = video_GREY;                   // Cor da borda do bloco (cinza)
-    int border_thickness = block_side - (block_side * 0.125); // Espessura da borda
+    x22++;
+    y22++;
 
-    video_box(x1, y1, x2, y2, border_color);
+    //unsigned int border_color = video_GREY;                   // Cor da borda do bloco (cinza)
+    //int border_thickness = block_side - (block_side * 0.125); // Espessura da borda
+
+    //video_box(x1, y1, x2, y2, border_color);
+    video_to_fpga(x1, y1, color);
 
     // Ajusta as coordenadas do bloco interno (subtrai a espessura da borda)
-    x1 += border_thickness;
-    y1 += border_thickness;
-    x2 -= border_thickness;
-    y2 -= border_thickness;
-    video_box(x1, y1, x2, y2, color);
+    // x1 += border_thickness;
+    // y1 += border_thickness;
+    // x2 -= border_thickness;
+    // y2 -= border_thickness;
+    // //video_box(x1, y1, x2, y2, color);
+    // video_to_fpga(x1, y1, color);
 }
 
 
@@ -306,7 +348,7 @@ Tetris_Piece print_piece(int piece_set[4][4], Block_space matrix[24][10])
         }
     }
     // printf("Matriz[%d][%d] - Coordenada: (%d, %d)\n", i, j, top_left_point_x, top_left_point_y);
-    video_show(); // Mostra os gráficos gerados
+    //video_show(); // Mostra os gráficos gerados
     return generated_Piece;
 }
 
@@ -316,10 +358,12 @@ Tetris_Piece push_piece_down(Tetris_Piece piece_To_Be_Pushed, Block_space matrix
     unsigned color;
     int i, j;
 
-    video_erase(); // Limpa o conteúdo atual da tela
-    video_clear(); // Limpa o buffer da tela (Back buffer)
+    //video_erase(); // Limpa o conteúdo atual da tela
+    //video_clear(); // Limpa o buffer da tela (Back buffer)
 
-    gen_barrel(matrix); // Gera o barril na matriz
+    //gen_barrel(matrix); // Gera o barril na matriz
+    //video_to_fpga(x1, y1, color);
+    erase_piece(piece_To_Be_Pushed, matrix);
 
     // Verifica se a peça pode se mover para baixo
     bool can_move_down = true;
@@ -411,9 +455,9 @@ Tetris_Piece push_piece_down(Tetris_Piece piece_To_Be_Pushed, Block_space matrix
         }
     }
     // sprintf (msg_buffer, "Points: %03d", total_score);
-    // video_text (char_x - strlen(msg_buffer), 25, msg_buffer);
+    // //video_text (char_x - strlen(msg_buffer), 25, msg_buffer);
     // draw_points_word_with_number(total_score);
-    video_show(); // Mostra os gráficos gerados
+    //video_show(); // Mostra os gráficos gerados
     pushed_Piece = piece_To_Be_Pushed;
 
     return pushed_Piece;
@@ -426,10 +470,11 @@ Tetris_Piece push_piece_sides(bool right, Tetris_Piece piece_To_Be_Pushed, Block
     int i = 0;
     int j = 0;
 
-    video_erase(); // Limpa o conteúdo atual da tela
-    video_clear(); // Limpa o buffer da tela (Back buffer)
+    //video_erase(); // Limpa o conteúdo atual da tela
+    //video_clear(); // Limpa o buffer da tela (Back buffer)
 
-    gen_barrel(matrix); // Gera o barril na matriz
+    //gen_barrel(matrix); // Gera o barril na matriz
+    erase_piece(piece_To_Be_Pushed, matrix);
 
     // Verifica se pode mover a peça para a direita
     if (right)
@@ -532,9 +577,9 @@ Tetris_Piece push_piece_sides(bool right, Tetris_Piece piece_To_Be_Pushed, Block
         }
     }
     // sprintf (msg_buffer, "Points: %03d", total_score);
-    // video_text (char_x - strlen(msg_buffer), 25, msg_buffer);
+    // //video_text (char_x - strlen(msg_buffer), 25, msg_buffer);
     // draw_points_word_with_number(total_score);
-    video_show(); // Mostra os gráficos gerados
+    //video_show(); // Mostra os gráficos gerados
     pushed_Piece = piece_To_Be_Pushed;
 
     return pushed_Piece;
@@ -572,52 +617,52 @@ void draw_points_word_with_number(int points)
 void draw_letter_P(int start_x, int start_y, int block_size, short color)
 {
     // Desenha a letra P usando quadrados e retângulos
-    video_box(start_x, start_y, start_x + block_size, start_y + 5 * block_size, color);                                   // linha vertical
-    video_box(start_x + block_size, start_y, start_x + 3 * block_size, start_y + block_size, color);                      // topo
-    video_box(start_x + block_size, start_y + 2 * block_size, start_x + 3 * block_size, start_y + 3 * block_size, color); // parte do meio
-    video_box(start_x + 2 * block_size, start_y + block_size, start_x + 3 * block_size, start_y + 2 * block_size, color); // lateral direita
+    //video_box(start_x, start_y, start_x + block_size, start_y + 5 * block_size, color);                                   // linha vertical
+    //video_box(start_x + block_size, start_y, start_x + 3 * block_size, start_y + block_size, color);                      // topo
+    //video_box(start_x + block_size, start_y + 2 * block_size, start_x + 3 * block_size, start_y + 3 * block_size, color); // parte do meio
+    //video_box(start_x + 2 * block_size, start_y + block_size, start_x + 3 * block_size, start_y + 2 * block_size, color); // lateral direita
 }
 
 // Similarmente, funções para outras letras
 void draw_letter_O(int start_x, int start_y, int block_size, short color)
 {
-    video_box(start_x, start_y, start_x + block_size, start_y + 5 * block_size, color);                                   // esquerda
-    video_box(start_x + 3 * block_size, start_y, start_x + 4 * block_size, start_y + 5 * block_size, color);              // direita
-    video_box(start_x + block_size, start_y, start_x + 3 * block_size, start_y + block_size, color);                      // topo
-    video_box(start_x + block_size, start_y + 4 * block_size, start_x + 3 * block_size, start_y + 5 * block_size, color); // base
+    //video_box(start_x, start_y, start_x + block_size, start_y + 5 * block_size, color);                                   // esquerda
+    //video_box(start_x + 3 * block_size, start_y, start_x + 4 * block_size, start_y + 5 * block_size, color);              // direita
+    //video_box(start_x + block_size, start_y, start_x + 3 * block_size, start_y + block_size, color);                      // topo
+    //video_box(start_x + block_size, start_y + 4 * block_size, start_x + 3 * block_size, start_y + 5 * block_size, color); // base
 }
 
 void draw_letter_I(int start_x, int start_y, int block_size, short color)
 {
-    video_box(start_x + block_size, start_y, start_x + 2 * block_size, start_y + 5 * block_size, color); // linha vertical
+    //video_box(start_x + block_size, start_y, start_x + 2 * block_size, start_y + 5 * block_size, color); // linha vertical
 }
 
 void draw_letter_N(int start_x, int start_y, int block_size, short color)
 {
-    video_box(start_x, start_y, start_x + block_size, start_y + 5 * block_size, color);                      // esquerda
-    video_box(start_x + 3 * block_size, start_y, start_x + 4 * block_size, start_y + 5 * block_size, color); // direita
-    video_box(start_x + block_size, start_y, start_x + 3 * block_size, start_y + block_size, color);         // diagonal
+    //video_box(start_x, start_y, start_x + block_size, start_y + 5 * block_size, color);                      // esquerda
+    //video_box(start_x + 3 * block_size, start_y, start_x + 4 * block_size, start_y + 5 * block_size, color); // direita
+    //video_box(start_x + block_size, start_y, start_x + 3 * block_size, start_y + block_size, color);         // diagonal
 }
 
 void draw_letter_T(int start_x, int start_y, int block_size, short color)
 {
-    video_box(start_x + block_size, start_y, start_x + 2 * block_size, start_y + 5 * block_size, color); // linha vertical
-    video_box(start_x, start_y, start_x + 3 * block_size, start_y + block_size, color);                  // topo
+    //video_box(start_x + block_size, start_y, start_x + 2 * block_size, start_y + 5 * block_size, color); // linha vertical
+    //video_box(start_x, start_y, start_x + 3 * block_size, start_y + block_size, color);                  // topo
 }
 
 void draw_letter_S(int start_x, int start_y, int block_size, short color)
 {
-    video_box(start_x, start_y, start_x + 3 * block_size, start_y + block_size, color);                                       // topo
-    video_box(start_x, start_y + 2 * block_size, start_x + 3 * block_size, start_y + 3 * block_size, color);                  // meio
-    video_box(start_x, start_y + 4 * block_size, start_x + 3 * block_size, start_y + 5 * block_size, color);                  // base
-    video_box(start_x, start_y + block_size, start_x + block_size, start_y + 2 * block_size, color);                          // esquerda superior
-    video_box(start_x + 2 * block_size, start_y + 3 * block_size, start_x + 3 * block_size, start_y + 4 * block_size, color); // direita inferior
+    //video_box(start_x, start_y, start_x + 3 * block_size, start_y + block_size, color);                                       // topo
+    //video_box(start_x, start_y + 2 * block_size, start_x + 3 * block_size, start_y + 3 * block_size, color);                  // meio
+    //video_box(start_x, start_y + 4 * block_size, start_x + 3 * block_size, start_y + 5 * block_size, color);                  // base
+    //video_box(start_x, start_y + block_size, start_x + block_size, start_y + 2 * block_size, color);                          // esquerda superior
+    //video_box(start_x + 2 * block_size, start_y + 3 * block_size, start_x + 3 * block_size, start_y + 4 * block_size, color); // direita inferior
 }
 
 void draw_colon(int start_x, int start_y, int block_size, short color)
 {
-    video_box(start_x + block_size, start_y + block_size, start_x + 2 * block_size, start_y + 2 * block_size, color);     // ponto superior
-    video_box(start_x + block_size, start_y + 3 * block_size, start_x + 2 * block_size, start_y + 4 * block_size, color); // ponto inferior
+    //video_box(start_x + block_size, start_y + block_size, start_x + 2 * block_size, start_y + 2 * block_size, color);     // ponto superior
+    //video_box(start_x + block_size, start_y + 3 * block_size, start_x + 2 * block_size, start_y + 4 * block_size, color); // ponto inferior
 }
 
 void draw_digit_0(int start_x, int start_y, int block_size, short color)
@@ -627,64 +672,64 @@ void draw_digit_0(int start_x, int start_y, int block_size, short color)
 
 void draw_digit_1(int start_x, int start_y, int block_size, short color)
 {
-    video_box(start_x + 2 * block_size, start_y, start_x + 3 * block_size, start_y + 5 * block_size, color); // barra vertical direita
+    //video_box(start_x + 2 * block_size, start_y, start_x + 3 * block_size, start_y + 5 * block_size, color); // barra vertical direita
 }
 
 void draw_digit_2(int start_x, int start_y, int block_size, short color)
 {
-    video_box(start_x, start_y, start_x + 3 * block_size, start_y + block_size, color);                      // topo
-    video_box(start_x + 3 * block_size, start_y, start_x + 4 * block_size, start_y + 3 * block_size, color);              // lado direito superior
-    video_box(start_x + block_size, start_y + 2 * block_size, start_x + 3 * block_size, start_y + 3 * block_size, color); // meio
-    video_box(start_x, start_y + 2 * block_size, start_x + block_size, start_y + 5 * block_size, color);                  // lado esquerdo inferior
-    video_box(start_x + block_size, start_y + 4 * block_size, start_x + 3 * block_size, start_y + 5 * block_size, color); // base
+    //video_box(start_x, start_y, start_x + 3 * block_size, start_y + block_size, color);                      // topo
+    //video_box(start_x + 3 * block_size, start_y, start_x + 4 * block_size, start_y + 3 * block_size, color);              // lado direito superior
+    //video_box(start_x + block_size, start_y + 2 * block_size, start_x + 3 * block_size, start_y + 3 * block_size, color); // meio
+    //video_box(start_x, start_y + 2 * block_size, start_x + block_size, start_y + 5 * block_size, color);                  // lado esquerdo inferior
+    //video_box(start_x + block_size, start_y + 4 * block_size, start_x + 3 * block_size, start_y + 5 * block_size, color); // base
 }
 
 void draw_digit_3(int start_x, int start_y, int block_size, short color)
 {
-    video_box(start_x + block_size, start_y, start_x + 3 * block_size, start_y + block_size, color);                      // topo
-    video_box(start_x + block_size, start_y + 2 * block_size, start_x + 3 * block_size, start_y + 3 * block_size, color); // meio
-    video_box(start_x + block_size, start_y + 4 * block_size, start_x + 3 * block_size, start_y + 5 * block_size, color); // base
-    video_box(start_x + 3 * block_size, start_y, start_x + 4 * block_size, start_y + 5 * block_size, color);              // barra direita
+    //video_box(start_x + block_size, start_y, start_x + 3 * block_size, start_y + block_size, color);                      // topo
+    //video_box(start_x + block_size, start_y + 2 * block_size, start_x + 3 * block_size, start_y + 3 * block_size, color); // meio
+    //video_box(start_x + block_size, start_y + 4 * block_size, start_x + 3 * block_size, start_y + 5 * block_size, color); // base
+    //video_box(start_x + 3 * block_size, start_y, start_x + 4 * block_size, start_y + 5 * block_size, color);              // barra direita
 }
 
 void draw_digit_4(int start_x, int start_y, int block_size, short color)
 {
-    video_box(start_x * block_size, start_y, start_x + 1 * block_size, start_y + block_size, color);     // topo direito
-    video_box(start_x + 2 * block_size, start_y, start_x + 3 * block_size, start_y + 5 * block_size, color); // barra vertical direita
-    video_box(start_x, start_y + 2 * block_size, start_x + 2 * block_size, start_y + 3 * block_size, color); // barra horizontal do meio
+    //video_box(start_x * block_size, start_y, start_x + 1 * block_size, start_y + block_size, color);     // topo direito
+    //video_box(start_x + 2 * block_size, start_y, start_x + 3 * block_size, start_y + 5 * block_size, color); // barra vertical direita
+    //video_box(start_x, start_y + 2 * block_size, start_x + 2 * block_size, start_y + 3 * block_size, color); // barra horizontal do meio
 }
 
 void draw_digit_5(int start_x, int start_y, int block_size, short color)
 {
-    video_box(start_x + block_size, start_y, start_x + 3 * block_size, start_y + block_size, color);                          // topo
-    video_box(start_x, start_y, start_x + block_size, start_y + 3 * block_size, color);                                       // barra esquerda
-    video_box(start_x + block_size, start_y + 2 * block_size, start_x + 3 * block_size, start_y + 3 * block_size, color);     // meio
-    video_box(start_x + block_size, start_y + 4 * block_size, start_x + 3 * block_size, start_y + 5 * block_size, color);     // base
-    video_box(start_x + 3 * block_size, start_y + 2 * block_size, start_x + 4 * block_size, start_y + 5 * block_size, color); // barra direita inferior
+    //video_box(start_x + block_size, start_y, start_x + 3 * block_size, start_y + block_size, color);                          // topo
+    //video_box(start_x, start_y, start_x + block_size, start_y + 3 * block_size, color);                                       // barra esquerda
+    //video_box(start_x + block_size, start_y + 2 * block_size, start_x + 3 * block_size, start_y + 3 * block_size, color);     // meio
+    //video_box(start_x + block_size, start_y + 4 * block_size, start_x + 3 * block_size, start_y + 5 * block_size, color);     // base
+    //video_box(start_x + 3 * block_size, start_y + 2 * block_size, start_x + 4 * block_size, start_y + 5 * block_size, color); // barra direita inferior
 }
 
 void draw_digit_6(int start_x, int start_y, int block_size, short color)
 {
     draw_digit_5(start_x, start_y, block_size, color);                                                                    // Reutiliza partes do "5"
-    video_box(start_x + 3 * block_size, start_y + block_size, start_x + 4 * block_size, start_y + 3 * block_size, color); // barra direita superior
+    //video_box(start_x + 3 * block_size, start_y + block_size, start_x + 4 * block_size, start_y + 3 * block_size, color); // barra direita superior
 }
 
 void draw_digit_7(int start_x, int start_y, int block_size, short color)
 {
-    video_box(start_x + block_size, start_y, start_x + 3 * block_size, start_y + block_size, color);         // topo
-    video_box(start_x + 3 * block_size, start_y, start_x + 4 * block_size, start_y + 5 * block_size, color); // barra direita
+    //video_box(start_x + block_size, start_y, start_x + 3 * block_size, start_y + block_size, color);         // topo
+    //video_box(start_x + 3 * block_size, start_y, start_x + 4 * block_size, start_y + 5 * block_size, color); // barra direita
 }
 
 void draw_digit_8(int start_x, int start_y, int block_size, short color)
 {
     draw_letter_O(start_x, start_y, block_size, color);                                                                   // Desenha o "0"
-    video_box(start_x + block_size, start_y + 2 * block_size, start_x + 3 * block_size, start_y + 3 * block_size, color); // barra horizontal do meio
+    //video_box(start_x + block_size, start_y + 2 * block_size, start_x + 3 * block_size, start_y + 3 * block_size, color); // barra horizontal do meio
 }
 
 void draw_digit_9(int start_x, int start_y, int block_size, short color)
 {
     draw_digit_8(start_x, start_y, block_size, color);                                                   // Reutiliza o "8"
-    video_box(start_x, start_y + 2 * block_size, start_x + block_size, start_y + 5 * block_size, color); // remove barra esquerda inferior
+    //video_box(start_x, start_y + 2 * block_size, start_x + block_size, start_y + 5 * block_size, color); // remove barra esquerda inferior
 }
 
 // Função para desenhar os dígitos de 0 a 9
@@ -740,41 +785,41 @@ int int_pow(int base, int exponent)
 
 void draw_letter_P_italic(int start_x, int start_y, int block_size, short color)
 {
-    video_box(start_x, start_y, start_x + block_size, start_y + 5 * block_size, color);                                   // lado esquerdo
-    video_box(start_x + block_size, start_y, start_x + 3 * block_size, start_y + block_size, color);                      // topo
-    video_box(start_x + block_size, start_y + 2 * block_size, start_x + 3 * block_size, start_y + 3 * block_size, color); // meio
-    video_box(start_x + 3 * block_size, start_y, start_x + 4 * block_size, start_y + 3 * block_size, color);              // lado direito do topo
+    //video_box(start_x, start_y, start_x + block_size, start_y + 5 * block_size, color);                                   // lado esquerdo
+    //video_box(start_x + block_size, start_y, start_x + 3 * block_size, start_y + block_size, color);                      // topo
+    //video_box(start_x + block_size, start_y + 2 * block_size, start_x + 3 * block_size, start_y + 3 * block_size, color); // meio
+    //video_box(start_x + 3 * block_size, start_y, start_x + 4 * block_size, start_y + 3 * block_size, color);              // lado direito do topo
 }
 
 void draw_letter_A_italic(int start_x, int start_y, int block_size, short color)
 {
-    video_box(start_x + block_size, start_y, start_x + 2 * block_size, start_y + block_size, color);                      // topo
-    video_box(start_x, start_y + block_size, start_x + block_size, start_y + 5 * block_size, color);                      // lado esquerdo
-    video_box(start_x + 3 * block_size, start_y + block_size, start_x + 4 * block_size, start_y + 5 * block_size, color); // lado direito
-    video_box(start_x + block_size, start_y + 2 * block_size, start_x + 3 * block_size, start_y + 3 * block_size, color); // meio
+    //video_box(start_x + block_size, start_y, start_x + 2 * block_size, start_y + block_size, color);                      // topo
+    //video_box(start_x, start_y + block_size, start_x + block_size, start_y + 5 * block_size, color);                      // lado esquerdo
+    //video_box(start_x + 3 * block_size, start_y + block_size, start_x + 4 * block_size, start_y + 5 * block_size, color); // lado direito
+    //video_box(start_x + block_size, start_y + 2 * block_size, start_x + 3 * block_size, start_y + 3 * block_size, color); // meio
 }
 
 void draw_letter_U_italic(int start_x, int start_y, int block_size, short color)
 {
-    video_box(start_x, start_y, start_x + block_size, start_y + 5 * block_size, color);                                   // lado esquerdo
-    video_box(start_x + 3 * block_size, start_y, start_x + 4 * block_size, start_y + 5 * block_size, color);              // lado direito
-    video_box(start_x + block_size, start_y + 4 * block_size, start_x + 3 * block_size, start_y + 5 * block_size, color); // base
+    //video_box(start_x, start_y, start_x + block_size, start_y + 5 * block_size, color);                                   // lado esquerdo
+    //video_box(start_x + 3 * block_size, start_y, start_x + 4 * block_size, start_y + 5 * block_size, color);              // lado direito
+    //video_box(start_x + block_size, start_y + 4 * block_size, start_x + 3 * block_size, start_y + 5 * block_size, color); // base
 }
 void draw_letter_S_italic(int start_x, int start_y, int block_size, short color)
 {
-    video_box(start_x + block_size, start_y, start_x + 3 * block_size, start_y + block_size, color);                          // topo
-    video_box(start_x, start_y, start_x + block_size, start_y + 2 * block_size, color);                                       // lado esquerdo do topo
-    video_box(start_x + block_size, start_y + 2 * block_size, start_x + 3 * block_size, start_y + 3 * block_size, color);     // meio
-    video_box(start_x + 3 * block_size, start_y + 3 * block_size, start_x + 4 * block_size, start_y + 5 * block_size, color); // lado direito do final
-    video_box(start_x + block_size, start_y + 4 * block_size, start_x + 3 * block_size, start_y + 5 * block_size, color);     // base
+    //video_box(start_x + block_size, start_y, start_x + 3 * block_size, start_y + block_size, color);                          // topo
+    //video_box(start_x, start_y, start_x + block_size, start_y + 2 * block_size, color);                                       // lado esquerdo do topo
+    //video_box(start_x + block_size, start_y + 2 * block_size, start_x + 3 * block_size, start_y + 3 * block_size, color);     // meio
+    //video_box(start_x + 3 * block_size, start_y + 3 * block_size, start_x + 4 * block_size, start_y + 5 * block_size, color); // lado direito do final
+    //video_box(start_x + block_size, start_y + 4 * block_size, start_x + 3 * block_size, start_y + 5 * block_size, color);     // base
 }
 
 void draw_letter_E_italic(int start_x, int start_y, int block_size, short color)
 {
-    video_box(start_x, start_y, start_x + block_size, start_y + 5 * block_size, color);                                   // lado esquerdo
-    video_box(start_x + block_size, start_y, start_x + 4 * block_size, start_y + block_size, color);                      // topo
-    video_box(start_x + block_size, start_y + 2 * block_size, start_x + 3 * block_size, start_y + 3 * block_size, color); // meio
-    video_box(start_x + block_size, start_y + 4 * block_size, start_x + 4 * block_size, start_y + 5 * block_size, color); // base
+    //video_box(start_x, start_y, start_x + block_size, start_y + 5 * block_size, color);                                   // lado esquerdo
+    //video_box(start_x + block_size, start_y, start_x + 4 * block_size, start_y + block_size, color);                      // topo
+    //video_box(start_x + block_size, start_y + 2 * block_size, start_x + 3 * block_size, start_y + 3 * block_size, color); // meio
+    //video_box(start_x + block_size, start_y + 4 * block_size, start_x + 4 * block_size, start_y + 5 * block_size, color); // base
 }
 
 void draw_word_PAUSE_()
@@ -799,64 +844,64 @@ void draw_word_PAUSE_()
 // Desenha a letra "G"
 void draw_letter_G(int start_x, int start_y, int block_size, short color)
 {
-    video_box(start_x, start_y, start_x + 4 * block_size, start_y + block_size, color);                                       // topo
-    video_box(start_x, start_y, start_x + block_size, start_y + 5 * block_size, color);                                       // lado esquerdo
-    video_box(start_x, start_y + 4 * block_size, start_x + 4 * block_size, start_y + 5 * block_size, color);                  // base
-    video_box(start_x + 3 * block_size, start_y + 3 * block_size, start_x + 4 * block_size, start_y + 5 * block_size, color); // lado direito inferior
-    video_box(start_x + 2 * block_size, start_y + 2 * block_size, start_x + 4 * block_size, start_y + 3 * block_size, color); // barra central
+    //video_box(start_x, start_y, start_x + 4 * block_size, start_y + block_size, color);                                       // topo
+    //video_box(start_x, start_y, start_x + block_size, start_y + 5 * block_size, color);                                       // lado esquerdo
+    //video_box(start_x, start_y + 4 * block_size, start_x + 4 * block_size, start_y + 5 * block_size, color);                  // base
+    //video_box(start_x + 3 * block_size, start_y + 3 * block_size, start_x + 4 * block_size, start_y + 5 * block_size, color); // lado direito inferior
+    //video_box(start_x + 2 * block_size, start_y + 2 * block_size, start_x + 4 * block_size, start_y + 3 * block_size, color); // barra central
 }
 
 // Desenha a letra "A"
 void draw_letter_A(int start_x, int start_y, int block_size, short color)
 {
-    video_box(start_x, start_y + block_size, start_x + block_size, start_y + 5 * block_size, color);                      // lado esquerdo
-    video_box(start_x + 3 * block_size, start_y + block_size, start_x + 4 * block_size, start_y + 5 * block_size, color); // lado direito
-    video_box(start_x + block_size, start_y, start_x + 3 * block_size, start_y + block_size, color);                      // topo
-    video_box(start_x + block_size, start_y + 2 * block_size, start_x + 3 * block_size, start_y + 3 * block_size, color); // barra central
+    //video_box(start_x, start_y + block_size, start_x + block_size, start_y + 5 * block_size, color);                      // lado esquerdo
+    //video_box(start_x + 3 * block_size, start_y + block_size, start_x + 4 * block_size, start_y + 5 * block_size, color); // lado direito
+    //video_box(start_x + block_size, start_y, start_x + 3 * block_size, start_y + block_size, color);                      // topo
+    //video_box(start_x + block_size, start_y + 2 * block_size, start_x + 3 * block_size, start_y + 3 * block_size, color); // barra central
 }
 
 // Desenha a letra "M"
 void draw_letter_M(int start_x, int start_y, int block_size, short color)
 {
-    video_box(start_x, start_y, start_x + block_size, start_y + 5 * block_size, color);                                   // lado esquerdo
-    video_box(start_x + 3 * block_size, start_y, start_x + 4 * block_size, start_y + 5 * block_size, color);              // lado direito
-    video_box(start_x + block_size, start_y + block_size, start_x + 2 * block_size, start_y + 2 * block_size, color);     // diagonal esquerda
-    video_box(start_x + 2 * block_size, start_y + block_size, start_x + 3 * block_size, start_y + 2 * block_size, color); // diagonal direita
+    //video_box(start_x, start_y, start_x + block_size, start_y + 5 * block_size, color);                                   // lado esquerdo
+    //video_box(start_x + 3 * block_size, start_y, start_x + 4 * block_size, start_y + 5 * block_size, color);              // lado direito
+    //video_box(start_x + block_size, start_y + block_size, start_x + 2 * block_size, start_y + 2 * block_size, color);     // diagonal esquerda
+    //video_box(start_x + 2 * block_size, start_y + block_size, start_x + 3 * block_size, start_y + 2 * block_size, color); // diagonal direita
 }
 
 // Desenha a letra "E"
 void draw_letter_E(int start_x, int start_y, int block_size, short color)
 {
-    video_box(start_x, start_y, start_x + 4 * block_size, start_y + block_size, color);                      // topo
-    video_box(start_x, start_y, start_x + block_size, start_y + 5 * block_size, color);                      // lado esquerdo
-    video_box(start_x, start_y + 4 * block_size, start_x + 4 * block_size, start_y + 5 * block_size, color); // base
-    video_box(start_x, start_y + 2 * block_size, start_x + 3 * block_size, start_y + 3 * block_size, color); // barra central
+    //video_box(start_x, start_y, start_x + 4 * block_size, start_y + block_size, color);                      // topo
+    //video_box(start_x, start_y, start_x + block_size, start_y + 5 * block_size, color);                      // lado esquerdo
+    //video_box(start_x, start_y + 4 * block_size, start_x + 4 * block_size, start_y + 5 * block_size, color); // base
+    //video_box(start_x, start_y + 2 * block_size, start_x + 3 * block_size, start_y + 3 * block_size, color); // barra central
 }
 
 // Desenha a letra "V"
 void draw_letter_V(int start_x, int start_y, int block_size, short color)
 {
-    video_box(start_x, start_y, start_x + block_size, start_y + 4 * block_size, color);                                   // lado esquerdo
-    video_box(start_x + 3 * block_size, start_y, start_x + 4 * block_size, start_y + 4 * block_size, color);              // lado direito
-    video_box(start_x + block_size, start_y + 4 * block_size, start_x + 3 * block_size, start_y + 5 * block_size, color); // base
+    //video_box(start_x, start_y, start_x + block_size, start_y + 4 * block_size, color);                                   // lado esquerdo
+    //video_box(start_x + 3 * block_size, start_y, start_x + 4 * block_size, start_y + 4 * block_size, color);              // lado direito
+    //video_box(start_x + block_size, start_y + 4 * block_size, start_x + 3 * block_size, start_y + 5 * block_size, color); // base
 }
 
 // Desenha a letra "R"
 void draw_letter_R(int start_x, int start_y, int block_size, short color)
 {
-    video_box(start_x, start_y, start_x + block_size, start_y + 5 * block_size, color);                                       // lado esquerdo
-    video_box(start_x + 3 * block_size, start_y, start_x + 4 * block_size, start_y + 3 * block_size, color);                  // lado direito superior
-    video_box(start_x + block_size, start_y, start_x + 3 * block_size, start_y + block_size, color);                          // topo
-    video_box(start_x + block_size, start_y + 2 * block_size, start_x + 3 * block_size, start_y + 3 * block_size, color);     // barra central
-    video_box(start_x + 2 * block_size, start_y + 3 * block_size, start_x + 3 * block_size, start_y + 4 * block_size, color); // diagonal inferior direita (parte 1)
-    video_box(start_x + 3 * block_size, start_y + 4 * block_size, start_x + 4 * block_size, start_y + 6 * block_size, color); // diagonal inferior direita (parte 2)   
+    //video_box(start_x, start_y, start_x + block_size, start_y + 5 * block_size, color);                                       // lado esquerdo
+    //video_box(start_x + 3 * block_size, start_y, start_x + 4 * block_size, start_y + 3 * block_size, color);                  // lado direito superior
+    //video_box(start_x + block_size, start_y, start_x + 3 * block_size, start_y + block_size, color);                          // topo
+    //video_box(start_x + block_size, start_y + 2 * block_size, start_x + 3 * block_size, start_y + 3 * block_size, color);     // barra central
+    //video_box(start_x + 2 * block_size, start_y + 3 * block_size, start_x + 3 * block_size, start_y + 4 * block_size, color); // diagonal inferior direita (parte 1)
+    //video_box(start_x + 3 * block_size, start_y + 4 * block_size, start_x + 4 * block_size, start_y + 6 * block_size, color); // diagonal inferior direita (parte 2)   
 }
 
 // Desenha o ponto de exclamação "!"
 void draw_letter_exclamation(int start_x, int start_y, int block_size, short color)
 {
-    video_box(start_x, start_y, start_x + block_size, start_y + 4 * block_size, color);                  // barra vertical
-    video_box(start_x, start_y + 5 * block_size, start_x + block_size, start_y + 6 * block_size, color); // ponto na base
+    //video_box(start_x, start_y, start_x + block_size, start_y + 4 * block_size, color);                  // barra vertical
+    //video_box(start_x, start_y + 5 * block_size, start_x + block_size, start_y + 6 * block_size, color); // ponto na base
 }
 
 void draw_word_GAME_OVER()
@@ -892,6 +937,89 @@ void draw_word_GAME_OVER()
 }
 
 
+// Função para converter uma cor RGB 16 bits em 9 bits BGR
+// Função para converter uma cor de 16 bits RGB para 9 bits BGR
+unsigned int convert_to_9bit_BGR(unsigned int color) {
+    uint8_t red = (color >> 11) & 0x1F;     // Extrair 5 bits de vermelho
+    uint8_t green = (color >> 5) & 0x3F;    // Extrair 6 bits de verde
+    uint8_t blue = color & 0x1F;            // Extrair 5 bits de azul
 
+    uint8_t b = blue >> 2;    // Reduzir para 3 bits
+    uint8_t g = green >> 3;   // Reduzir para 3 bits
+    uint8_t r = red >> 2;     // Reduzir para 3 bits
+
+    return (b << 6) | (g << 3) | r;
+}
+
+void video_to_fpga(int x1, int y1, unsigned int color) {
+    int block_x = x1 / 8;      // Índice do bloco na direção x
+    int block_y = y1 / 8;      // Índice do bloco na direção y
+
+    int position = block_y * 80 + block_x;  // Cálculo da posição (0 a 4799 para blocos de 8x8 em uma tela de 640x480)
+
+    int converted_color = (int) convert_to_9bit_BGR(color);
+    printf("Posição: %d\n", position); // Para depuração
+    draw_square_16x16(position, converted_color);
+}
+
+
+Tetris_Piece erase_piece(Tetris_Piece piece_To_Be_Pushed, Block_space matrix[24][10])
+{
+    Tetris_Piece pushed_Piece;
+    unsigned color;
+    int i, j;
+    // Atualiza a posição dos blocos da peça e desenha na tela
+    for (i = 0; i < SIZE_M; i++)
+    {
+        for (j = 0; j < SIZE_M; j++)
+        {
+            if (piece_To_Be_Pushed.blocks_coordinates[i][j].filled == 1)
+            {
+                int j_final = current_piece_pos_j + j;
+                int i_final = current_piece_pos_i + i;
+
+                // Atualiza as coordenadas da peça
+                piece_To_Be_Pushed.blocks_coordinates[i][j].top_left_point_x = matrix[i_final][j_final].top_left_point_x;
+                piece_To_Be_Pushed.blocks_coordinates[i][j].top_left_point_y = matrix[i_final][j_final].top_left_point_y;
+
+                // Desenha o bloco
+                int x1 = piece_To_Be_Pushed.blocks_coordinates[i][j].top_left_point_x;
+                int y1 = piece_To_Be_Pushed.blocks_coordinates[i][j].top_left_point_y;
+                int x2 = piece_To_Be_Pushed.blocks_coordinates[i][j].top_left_point_x + block_side;
+                int y2 = piece_To_Be_Pushed.blocks_coordinates[i][j].top_left_point_y + block_side;
+                color = video_BLACK;
+
+                gen_block(x1, y1, x2, y2, color); // Desenha o bloco
+            }
+        }
+    }
+
+    pushed_Piece = piece_To_Be_Pushed;
+    return pushed_Piece;
+
+}
+
+void erase_line(int line, Block_space matrix[24][10])
+{
+    unsigned color;
+    int i;
+    // Atualiza a posição dos blocos da peça e desenha na tela
+    for (i = 0; i < 10; i++)
+    {
+
+        // Desenha o bloco
+        int x1 = matrix[line][i].top_left_point_x;
+        int y1 = matrix[line][i].top_left_point_y;
+        int x2 = matrix[line][i].top_left_point_x + block_side;
+        int y2 = matrix[line][i].top_left_point_y + block_side;
+        color = video_BLACK;
+
+        gen_block(x1, y1, x2, y2, color); // Desenha o bloco
+
+        
+    }
+
+
+}
 
 
