@@ -7,9 +7,10 @@
 #include <time.h>                         // Para gerar números aleatórios com srand()
 #include <string.h>                       // Para manipulação de strings
 #include <sys/mman.h>                     // Para mapear memória física
-#include <intelfpgaup/KEY.h>              // Biblioteca do DE1-SoC para manipulação dos botões
-#include <intelfpgaup/video.h>            // Biblioteca do DE1-SoC para manipulação da saída de vídeo
+//#include <intelfpgaup/KEY.h>              // Biblioteca do DE1-SoC para manipulação dos botões
+//#include <intelfpgaup/video.h>            // Biblioteca do DE1-SoC para manipulação da saída de vídeo
 #include "../include/graphics.h"          // Funções gráficas para o jogo
+#include "../include/graphics_fpga.h"
 #include "../include/input.h"             // Funções de entrada (botões e acelerômetro)
 #include "../include/game_logic.h"        // Lógica principal do jogo
 #include "../include/address_map_arm.h"   // Mapeamento de endereços de memória ARM
@@ -40,6 +41,8 @@ void *i2c0base_virtual;        // Endereço virtual mapeado do I2C0
 void *sysmgrbase_virtual;      // Endereço virtual mapeado do System Manager
 int fd_i2c0base = -1;          // Descritor de arquivo para I2C0
 int fd_sysmgr = -1;            // Descritor de arquivo para o System Manager
+//int32_t fd_fpga = -1;
+//int fd_fpga = -1;
 
 // Função que captura SIGINT (Ctrl+C) para parar o jogo
 void catchSIGINT(int signum)
@@ -60,7 +63,7 @@ int main(void)
     accelered = 0;             // Inicializa o estado acelerado como falso
     refresh_time_accel = 2;    // Tempo de atualização quando acelerado (2 milissegundos)
 
-    int KEY_data; // Variável para armazenar o estado do botão do DE1-SoC
+    //int KEY_data; // Variável para armazenar o estado do botão do DE1-SoC
 
     time_t t; // Variável para o tempo (usada para semente de rand)
 
@@ -100,19 +103,32 @@ int main(void)
     //////////////////////////////////////////////////////////TETRIS CODE ////////////////////////////////////////////////////////////////////
 
     // Abre os drivers de dispositivo para os botões e a saída de vídeo
-    if (!KEY_open() || !video_open())
-    {
-        printf("Erro ao abrir drivers KEY ou video.\n");
-        return -1; // Sai se não conseguir abrir os drivers
-    }
+    //if (!KEY_open() || !//video_open())
+    // if (!KEY_open())
+    // {
+    //     printf("Erro ao abrir drivers KEY ou video.\n");
+    //     return -1; // Sai se não conseguir abrir os drivers
+    // }
 
-    video_read(&screen_x, &screen_y, &char_x, &char_y); // Lê as dimensões da tela e do texto
+    ////video_read(&screen_x, &screen_y, &char_x, &char_y); // Lê as dimensões da tela e do texto
+    screen_x = 640;
+    screen_y = 480;
+    char_x = 640;
+    char_y = 480;
     block_side = (screen_y * 0.8) / 24;                 // Calcula o tamanho lateral de cada bloco com base na tela
+    
 
-    video_clear();       // Limpa o buffer da tela (Back buffer)
-    video_erase();       // Limpa o conteúdo atual da tela
-    video_show();        // Mostra a tela limpa
-    video_show();        // Mostra a tela limpa
+    /* Abrir /dev/mem */
+    //fd_fpga = open_men_vgafpga();
+    /* Mapeando Lightweight HPS-to-FPGA Bridge */
+    mapping_fpga();
+    //mapping_fpga(fd_fpga);
+    erase_screen();
+
+    //video_clear();       // Limpa o buffer da tela (Back buffer)
+    //video_erase();       // Limpa o conteúdo atual da tela
+    //video_show();        // Mostra a tela limpa
+    //video_show();        // Mostra a tela limpa
     fill_matrix(matrix); // Preenche a matriz com blocos
 
     Tetris_Piece generated_Piece = gen_piece(matrix); // Gera uma peça na tela
@@ -132,38 +148,38 @@ int main(void)
                     {
                         ADXL345_XYZ_Read(XYZ);    // Lê os dados do acelerômetro nos eixos X, Y e Z
 
-                        if (KEY_read(&KEY_data))  // Lê o estado dos botões do DE1-SoC
-                        {
-                            if (KEY_data & KEY1)  // Se o botão KEY1 for pressionado
-                            {
-                                pause_ = 1;       // Pausa o jogo
-                            }
-                            if (KEY_data & KEY3)  // Se o botão KEY3 for pressionado
-                            {
-                                stop = 1;         // Encerra o jogo
-                            }
-                        }
+                        // if (KEY_read(&KEY_data))  // Lê o estado dos botões do DE1-SoC
+                        // {
+                        //     if (KEY_data & KEY1)  // Se o botão KEY1 for pressionado
+                        //     {
+                        //         pause_ = 1;       // Pausa o jogo
+                        //     }
+                        //     if (KEY_data & KEY3)  // Se o botão KEY3 for pressionado
+                        //     {
+                        //         stop = 1;         // Encerra o jogo
+                        //     }
+                        // }
 
                         if (pause_)  // Verifica se o jogo está pausado
                         {
                             printf("Jogo pausado. Pressione o primeiro botão para continuar...\n");
-                            draw_word_PAUSE_();          // Desenha "PAUSE" na tela
-                            video_show();                // Mostra a tela atualizada com "PAUSE"
-                            while ((pause_) && (!stop))  // Enquanto o jogo estiver pausado e não for finalizado
-                            {
-                                if (KEY_read(&KEY_data))  // Verifica se algum botão foi pressionado para sair da pausa
-                                {
-                                    if (KEY_data & KEY1)  // Se o botão KEY1 for pressionado novamente
-                                    {
-                                        pause_ = 0;       // Sai da pausa
-                                    }
-                                    if (KEY_data & KEY3)  // Se o botão KEY3 for pressionado
-                                    {
-                                        stop = 1;         // Encerra o jogo
-                                    }
-                                }
-                                usleep(100000);           // Evita uso excessivo de CPU durante a pausa
-                            }
+                            //draw_word_PAUSE_();          // Desenha "PAUSE" na tela
+                            //video_show();                // Mostra a tela atualizada com "PAUSE"
+                            // while ((pause_) && (!stop))  // Enquanto o jogo estiver pausado e não for finalizado
+                            // {
+                            //     if (KEY_read(&KEY_data))  // Verifica se algum botão foi pressionado para sair da pausa
+                            //     {
+                            //         if (KEY_data & KEY1)  // Se o botão KEY1 for pressionado novamente
+                            //         {
+                            //             pause_ = 0;       // Sai da pausa
+                            //         }
+                            //         if (KEY_data & KEY3)  // Se o botão KEY3 for pressionado
+                            //         {
+                            //             stop = 1;         // Encerra o jogo
+                            //         }
+                            //     }
+                            //     usleep(100000);           // Evita uso excessivo de CPU durante a pausa
+                            // }
                         }
 
                         // Movimenta a peça para baixo
@@ -203,25 +219,25 @@ int main(void)
                         if (check_game_over(matrix))
                         {
                             game_over = 1;
-                            draw_word_GAME_OVER(); // Desenha "GAME OVER!" na tela
-                            video_show();  // Atualiza a tela
+                            //draw_word_GAME_OVER(); // Desenha "GAME OVER!" na tela
+                            //video_show();  // Atualiza a tela
 
                             // Loop para tratar o fim de jogo (aguarda o jogador reiniciar ou sair)
                             while (game_over && !stop)
                             {
-                                if (KEY_read(&KEY_data))
-                                {
-                                    if (KEY_data & KEY2)  // Se o botão KEY2 for pressionado
-                                    {
-                                        game_over = 0;    // Reinicia o jogo
-                                        total_score = 0;
-                                        main();           // Reinicia chamando a função main() novamente
-                                    }
-                                    if (KEY_data & KEY3)  // Se o botão KEY3 for pressionado
-                                    {
-                                        stop = 1;         // Encerra o jogo
-                                    }
-                                }
+                                // if (KEY_read(&KEY_data))
+                                // {
+                                //     if (KEY_data & KEY2)  // Se o botão KEY2 for pressionado
+                                //     {
+                                //         game_over = 0;    // Reinicia o jogo
+                                //         total_score = 0;
+                                //         main();           // Reinicia chamando a função main() novamente
+                                //     }
+                                //     if (KEY_data & KEY3)  // Se o botão KEY3 for pressionado
+                                //     {
+                                //         stop = 1;         // Encerra o jogo
+                                //     }
+                                // }
                                 usleep(100000);           // Espera 100ms antes de verificar novamente
                             }
                         }
@@ -241,8 +257,8 @@ int main(void)
     }
 
     // Fecha os drivers de vídeo e do botão
-    video_close();
-    KEY_close();
+    //video_close();
+    //KEY_close();
 
     //////////////////////////////////////////////////////////TETRIS CODE END/////////////////////////////////////////////////////////////////
 
@@ -251,6 +267,11 @@ int main(void)
     close_physical(fd_i2c0base);
     unmap_physical(sysmgrbase_virtual, SYSMGR_SPAN);
     close_physical(fd_sysmgr);
+
+
+    /* Desmapeando Lightweight HPS-to-FPGA Bridge */
+    unmapping_fpga();
+    //close(fd_fpga);
 
     printf("\nExiting sample program\n");  // Exibe mensagem final de saída do programa
     return 0;
