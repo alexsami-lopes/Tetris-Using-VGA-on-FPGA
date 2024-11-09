@@ -28,6 +28,8 @@ void gen_block(int, int, int, int, unsigned);                                   
 Tetris_Piece print_piece(int piece_set[4][4], Block_space matrix[24][10]);                              // Imprime uma peça aleatória de cor aleatória em um local aleatório do início da tela
 Tetris_Piece push_piece_down(Tetris_Piece piece_To_Be_Pushed, Block_space matrix[24][10]);              // Empurra peça de tetris para baixo
 Tetris_Piece push_piece_sides(bool right, Tetris_Piece piece_To_Be_Pushed, Block_space matrix[24][10]); // Empurra peça de tetris para a direita
+Tetris_Piece erase_piece(Tetris_Piece piece_To_Be_Pushed, Block_space matrix[24][10]);
+void erase_line(int line, Block_space matrix[24][10]);
 //int clear_full_lines(Block_space matrix[24][10]);
 // Tetris_Piece push_piece_left(Tetris_Piece piece_To_Be_Pushed, Block_space matrix[24][10]);  // Empurra peça de tetris para a esquerda
 
@@ -64,6 +66,8 @@ void draw_letter_V(int start_x, int start_y, int block_size, short color);
 void draw_letter_R(int start_x, int start_y, int block_size, short color);
 void draw_letter_exclamation(int start_x, int start_y, int block_size, short color);
 void draw_word_GAME_OVER();
+unsigned int convert_to_9bit_BGR(unsigned int color);
+void video_to_fpga(int x1, int y1, unsigned int color);
 //bool check_game_over(Block_space matrix[24][10]);
 
 int int_pow(int base, int exponent);
