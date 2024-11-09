@@ -96,6 +96,7 @@ Para acessar a Unidade de Processador Gráfico é necessário abrir o arquivo /d
 ## Uso de Bloco de Background
 
 Foi escolhido o uso de blocos de background para a criação de blocos de 8x8 e 16x16 na tela, o motivo da escolha da instrução de bloco de background em vez do uso da instrução de polígonos é que há um limite de quantos polígonos podem estar na tela ao mesmo tempo, segundo o Trabalho de Conclusão de Curso de Gabriel. A instrução de Escrita na Memória de Background (WBM), segundo Gabriel, "armazena ou modifica o conteudo presente na Memória de Background. Sua função é configurar valores RGB para o preenchimento de áreas do background. Seus campos são semelhantes ao da instrucão WSM (Fig. 10), a única diferença esta no campo endereço de memoria com tamanho de 12 bits. O valor do opcode e configurado como 0010. O background é divido em pequenos blocos de 8x8 pixels e cada endereço de memória corresponde a um bloco. Sendo a resolução de 640x480 pixels, temos uma divisao de 80x60 blocos."
+![Representação da instrução WSM - Figura 10](images/WSM-instruction-image.png)
 
 ## Funcionamento do Acelerômetro e Botões
 
