@@ -3,6 +3,7 @@
 #include <intelfpgaup/video.h>          // Para funções de vídeo no DE1-SoC
 #include "../include/input.h"           // Funções de entrada (acelerômetro e botões)
 #include "../include/graphics.h"        // Funções gráficas
+#include "../include/graphics_fpga.h"
 #include "../include/game_logic.h"      // Cabeçalho da lógica do jogo
 #include "../include/address_map_arm.h" // Mapeamento de endereços de memória ARM
 
@@ -75,6 +76,7 @@ int clear_full_lines(Block_space matrix[24][10])
         // Se a linha estiver completa, remove-a e desloca as linhas acima
         if (line_full)
         {
+            erase_line(i, matrix);
             // Move todas as linhas acima da linha removida para baixo
             for (k = i; k > 0; k--)                                // Desce todas as linhas acima de "i"
             {
