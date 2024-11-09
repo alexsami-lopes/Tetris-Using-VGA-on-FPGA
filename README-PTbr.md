@@ -11,9 +11,11 @@ Este projeto envolve o desenvolvimento de uma biblioteca em assembly que control
 5. [Como Compilar e Executar](#como-compilar-e-executar)
 6. [Imagens](#imagens)
 7. [Testes](#testes)
-8. [Funcionamento do Acelerômetro e Botões](#funcionamento-do-acelerômetro-e-botões)
-9. [Análise Final](#análise-final)
-10. [Materiais de Pesquisa Adicionais](#materiais-de-pesquisa-adicionais)
+8. [Acesso e funcionamento da Unidade de Processador Gráfico desenvolvida por Gabriel Sá Barreto Alves](#acesso-e-funcionamento-da-unidade-de-processador-gráfico-desenvolvida-por-gabriel-sá-barreto-alves)
+9. [Uso de Bloco de Background](#uso-de-bloco-de-background)
+10. [Funcionamento do Acelerômetro e Botões](#funcionamento-do-acelerômetro-e-botões)
+11. [Análise Final](#análise-final)
+12. [Materiais de Pesquisa Adicionais](#materiais-de-pesquisa-adicionais)
 
 ## Objetivos
 - Compreender uma arquitetura de um processador gráfico desenvolvido em uma FPGA.
@@ -138,4 +140,6 @@ O projeto demonstrou com sucesso parcial onde foi possível imprimir o primeiro 
 - [Manual do Usuário DE1-SoC](datasheets/user_manual.pdf)
 - [Datasheet do Acelerômetro ADXL345](datasheets/Accelerometer.pdf)
 - [Material de base de pesquisa do Acelerômetro](https://github.com/VimfulDang/ADXL345-Accelerometer-DE1-SOC/tree/master)
+- [Trabalho de Conlusão de Curso de Gabriel Sá Barreto Alves](https://drive.google.com/file/d/1MlIlpB9TSnoPGEMkocr36EH9-CFz8psO/view)
+- [Material de pesquisa para criação da biblioteca em assembly](https://github.com/GabrielSantosCruz/gpu-lib/blob/main/scripts/functions_lib.s)
 - [Retornar ao Índice](#índice)
