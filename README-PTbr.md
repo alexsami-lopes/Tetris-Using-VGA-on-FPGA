@@ -134,7 +134,7 @@ Os botões da placa DE1-SoC são usados para controlar as funções do jogo. As 
 As pressões nos botões são detectadas e registradas na memória mapeada, e a ação correspondente no jogo é disparada. A lógica do jogo lida com o debounce para garantir a detecção precisa dos botões.
 
 ## Análise Final
-O projeto demonstrou com sucesso parcial onde foi possível imprimir o primeiro frame do jogo, no entando, uma revisão mais aprofundada do código deve ser feita para identificar porque os frames seguintes não estão sendo exibidos. Além disso, algumas modificações no código do jogo precisam ser realizadas para possibilitar o uso dos botões, que apesar de testados em um programa separado em C, não foram completamente adaptados no código do jogo para o acesso da função is_button_pressed. Além disso, os textos com score usando a função draw_square_8x8 ainda precisa ser implementada.
+O projeto demonstrou com sucesso parcial onde foi possível imprimir o primeiro frame do jogo, no entando, uma revisão mais aprofundada do código deve ser feita para identificar porque os frames seguintes não estão sendo exibidos. Além disso, algumas modificações no código do jogo precisam ser realizadas para possibilitar o uso dos botões, que apesar de testados em um programa separado em C, não foram completamente adaptados no código do jogo para o acesso da função is_button_pressed. Além disso, os textos com a pontuação usando a função draw_square_8x8 ainda precisa ser implementada.
 
 ## Materiais de Pesquisa Adicionais
 - [Manual do Usuário DE1-SoC](datasheets/user_manual.pdf)
