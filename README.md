@@ -1,4 +1,4 @@
-# [Versão em Português (Brasil)](README-PTbr.md)
+# [Clique aqui para ver a versão em Português (Brasil)](README-PTbr.md)
 
 
 # Access Library for GPU on FPGA in DE1-SoC for VGA Display Used in a Tetris Game
